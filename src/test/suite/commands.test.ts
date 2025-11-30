@@ -114,16 +114,15 @@ suite('Extension Test Suite', () => {
     });
 
     test('scrollFast test', async () => {
-        // Create a long document
         const content = Array.from({ length: 100 }, (_, i) => `line ${i}`).join('\n');
         const doc = await vscode.workspace.openTextDocument({ content });
         const editor = await vscode.window.showTextDocument(doc);
-
-        // Initial cursor at 0,0
         assert.strictEqual(editor.selection.start.line, 0);
-
-        // Scroll down fast
         await myExtension.scrollFast('down');
+        assert.strictEqual(editor.selection.start.line, 3);
+        await myExtension.scrollFast('up');
+        assert.strictEqual(editor.selection.start.line, 0);
+    });
 
         // Should be at line 10
         assert.strictEqual(editor.selection.start.line, 10);

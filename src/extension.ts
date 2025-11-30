@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
-  const selectionStatus = 
+  const selectionStatus =
     vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 101);
 
   selectionStatus.tooltip = "Selection: lines and characters";
@@ -74,10 +74,13 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export const scrollFast = async (direction: 'up' | 'down') => {
+  const config = vscode.workspace.getConfiguration('my-extension');
+  const lineCount = config.get<number>('scrollFastLineCount', 3);
+
   await vscode.commands.executeCommand('cursorMove', {
     to: direction,
     by: 'line',
-    value: 3,
+    value: lineCount,
     select: false
   });
 };
