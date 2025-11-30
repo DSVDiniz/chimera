@@ -78,6 +78,22 @@
         "title": "Remove Duplicate Lines (Unique)"
       },
       {
+        "command": "my-extension.reverseLines",
+        "title": "Reverse Lines"
+      },
+      {
+        "command": "my-extension.shuffleLines",
+        "title": "Shuffle Lines"
+      },
+      {
+        "command": "my-extension.sortLines",
+        "title": "Sort Lines (Case Insensitive)"
+      },
+      {
+        "command": "my-extension.sortLinesCaseSensitive",
+        "title": "Sort Lines (Case Sensitive)"
+      },
+      {
         "command": "my-extension.scrollUpFast",
         "title": "Scroll Up Fast"
       },

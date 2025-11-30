@@ -204,4 +204,128 @@ suite('Extension Test Suite', () => {
         assert.strictEqual(lines[1], '');
         assert.strictEqual(lines[2], 'line2');
     });
+
+    test('reverseLines - basic reversal', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'first\nsecond\nthird\nfourth'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selection = new vscode.Selection(0, 0, 3, 6);
+
+        await myExtension.reverseLines();
+
+        const text = doc.getText();
+        const lines = text.split('\n');
+
+        assert.strictEqual(lines.length, 4);
+        assert.strictEqual(lines[0], 'fourth');
+        assert.strictEqual(lines[1], 'third');
+        assert.strictEqual(lines[2], 'second');
+        assert.strictEqual(lines[3], 'first');
+    });
+
+    test('reverseLines - partial selection', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'keep1\nreverse1\nreverse2\nreverse3\nkeep2'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selection = new vscode.Selection(1, 0, 3, 8);
+
+        await myExtension.reverseLines();
+
+        const text = doc.getText();
+        const lines = text.split('\n');
+
+        assert.strictEqual(lines.length, 5);
+        assert.strictEqual(lines[0], 'keep1');
+        assert.strictEqual(lines[1], 'reverse3');
+        assert.strictEqual(lines[2], 'reverse2');
+        assert.strictEqual(lines[3], 'reverse1');
+        assert.strictEqual(lines[4], 'keep2');
+    });
+
+    test('shuffleLines - maintains all lines', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'line1\nline2\nline3\nline4\nline5'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selection = new vscode.Selection(0, 0, 4, 5);
+
+        await myExtension.shuffleLines();
+
+        const text = doc.getText();
+        const lines = text.split('\n');
+
+        assert.strictEqual(lines.length, 5);
+        assert.ok(lines.includes('line1'));
+        assert.ok(lines.includes('line2'));
+        assert.ok(lines.includes('line3'));
+        assert.ok(lines.includes('line4'));
+        assert.ok(lines.includes('line5'));
+    });
+
+    test('sortLines - case insensitive', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'Zebra\napple\nBanana\ncherry\nApple'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selection = new vscode.Selection(0, 0, 4, 5);
+
+        await myExtension.sortLines(false);
+
+        const text = doc.getText();
+        const lines = text.split('\n');
+
+        assert.strictEqual(lines.length, 5);
+        assert.strictEqual(lines[0], 'apple');
+        assert.strictEqual(lines[1], 'Apple');
+        assert.strictEqual(lines[2], 'Banana');
+        assert.strictEqual(lines[3], 'cherry');
+        assert.strictEqual(lines[4], 'Zebra');
+    });
+
+    test('sortLines - case sensitive', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'Zebra\napple\nBanana\ncherry\nApple'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selection = new vscode.Selection(0, 0, 4, 5);
+
+        await myExtension.sortLines(true);
+
+        const text = doc.getText();
+        const lines = text.split('\n');
+
+        assert.strictEqual(lines.length, 5);
+        assert.strictEqual(lines[0], 'Apple');
+        assert.strictEqual(lines[1], 'Banana');
+        assert.strictEqual(lines[2], 'Zebra');
+        assert.strictEqual(lines[3], 'apple');
+        assert.strictEqual(lines[4], 'cherry');
+    });
+
+    test('sortLines - numeric and special characters', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: '3. Third\n1. First\n10. Tenth\n2. Second'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selection = new vscode.Selection(0, 0, 3, 9);
+
+        await myExtension.sortLines(false);
+
+        const text = doc.getText();
+        const lines = text.split('\n');
+
+        assert.strictEqual(lines.length, 4);
+        assert.strictEqual(lines[0], '1. First');
+        assert.strictEqual(lines[1], '10. Tenth');
+        assert.strictEqual(lines[2], '2. Second');
+        assert.strictEqual(lines[3], '3. Third');
+    });
 });
