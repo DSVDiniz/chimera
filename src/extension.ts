@@ -201,6 +201,7 @@ export const addNumbersToCursors = async (startNumberArg?: number) => {
 let originalSelectionsText: string[] = [];
 let lastResultSelections: readonly vscode.Selection[] = [];
 type CaseType = 'camel' | 'pascal' | 'upper' | 'upperSnake' | 'snake' | 'snakeCamel' | 'snakePascal' | 'kebab' | 'upperKebab' | 'lower';
+
 export const cycleCasing = async () => {
   const editor = vscode.window.activeTextEditor;
   if (!editor) {
@@ -210,6 +211,11 @@ export const cycleCasing = async () => {
   if (!selections || selections.length === 0) {
     return;
   }
+
+  const config = vscode.workspace.getConfiguration('my-extension');
+  const cycleOrder = config.get<CaseType[]>('cycleCasingOrder', [
+    'camel', 'pascal', 'upper', 'upperSnake', 'snakePascal', 'snakeCamel', 'kebab', 'upperKebab', 'lower'
+  ]);
 
   let isContinuing = false;
   if (lastResultSelections.length === selections.length) {
@@ -238,39 +244,13 @@ export const cycleCasing = async () => {
       const originalText = originalSelectionsText[i];
       const currentText = editor.document.getText(selection);
       const currentCase = detectCase(currentText);
-      let newText: string;
-      switch (currentCase) {
-        case 'camel':
-          newText = toPascalCase(originalText);
-          break;
-        case 'pascal':
-          newText = originalText.toUpperCase();
-          break;
-        case 'upper':
-          newText = toUpperSnakeCase(originalText);
-          break;
-        case 'upperSnake':
-          newText = toSnakePascalCase(originalText);
-          break;
-        case 'snakePascal':
-          newText = toSnakeCamelCase(originalText);
-          break;
-        case 'snakeCamel':
-          newText = toKebabCase(originalText);
-          break;
-        case 'snake':
-          newText = toSnakePascalCase(originalText);
-          break;
-        case 'kebab':
-          newText = toUpperKebabCase(originalText);
-          break;
-        case 'upperKebab':
-          newText = originalText.replace(/[-_]/g, '').toLowerCase();
-          break;
-        case 'lower':
-          newText = toCamelCase(originalText);
-          break;
-      }
+
+      const currentIndex = cycleOrder.indexOf(currentCase);
+      const nextIndex = (currentIndex + 1) % cycleOrder.length;
+      const nextCase = cycleOrder[nextIndex];
+
+      const converter = caseConverters[nextCase];
+      const newText = converter(originalText);
 
       editBuilder.replace(selection, newText);
     }
@@ -357,6 +337,20 @@ const toUpperSnakeCase = (text: string): string => {
 
   return words.join('_').toUpperCase();
 };
+const toSnakeCase = (text: string): string => {
+  const words = text
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/[_-]/g, ' ')
+    .trim()
+    .toLowerCase()
+    .split(/\s+/);
+
+  if (words.length === 0) {
+    return text;
+  }
+
+  return words.join('_');
+};
 const toSnakeCamelCase = (text: string): string => {
   const words = text
     .replace(/([A-Z])/g, ' $1')
@@ -400,6 +394,19 @@ const toUpperKebabCase = (text: string): string => {
     .replace(/-+/g, '-')
     .replace(/^-/, '')
     .toUpperCase();
+};
+
+const caseConverters: Record<CaseType, (text: string) => string> = {
+  camel: toCamelCase,
+  pascal: toPascalCase,
+  upper: (text: string) => text.toUpperCase(),
+  upperSnake: toUpperSnakeCase,
+  snake: toSnakeCase,
+  snakeCamel: toSnakeCamelCase,
+  snakePascal: toSnakePascalCase,
+  kebab: toKebabCase,
+  upperKebab: toUpperKebabCase,
+  lower: (text: string) => text.replace(/[-_]/g, '').toLowerCase()
 };
 
 export const uniqueLines = async () => {

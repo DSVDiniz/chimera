@@ -23,6 +23,36 @@
           "minimum": 1,
           "maximum": 100,
           "description": "Number of lines to scroll when using Scroll Up/Down Fast commands"
+        },
+        "my-extension.cycleCasingOrder": {
+          "type": "array",
+          "default": [
+            "camel",
+            "pascal",
+            "upper",
+            "upperSnake",
+            "snakePascal",
+            "snakeCamel",
+            "kebab",
+            "upperKebab",
+            "lower"
+          ],
+          "items": {
+            "type": "string",
+            "enum": [
+              "camel",
+              "pascal",
+              "upper",
+              "upperSnake",
+              "snake",
+              "snakePascal",
+              "snakeCamel",
+              "kebab",
+              "upperKebab",
+              "lower"
+            ]
+          },
+          "description": "Order in which to cycle through case types. Available: camel, pascal, upper, upperSnake, snake, snakePascal, snakeCamel, kebab, upperKebab, lower"
         }
       }
     },
