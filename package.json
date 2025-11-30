@@ -94,6 +94,14 @@
         "title": "Sort Lines (Case Sensitive)"
       },
       {
+        "command": "my-extension.splitArguments",
+        "title": "Split Arguments"
+      },
+      {
+        "command": "my-extension.unsplitArguments",
+        "title": "Unsplit Arguments"
+      },
+      {
         "command": "my-extension.scrollUpFast",
         "title": "Scroll Up Fast"
       },
