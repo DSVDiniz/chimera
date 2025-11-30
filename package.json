@@ -44,6 +44,10 @@
         "title": "Cycles casing (pascal, snake...)"
       },
       {
+        "command": "my-extension.uniqueLines",
+        "title": "Remove Duplicate Lines (Unique)"
+      },
+      {
         "command": "my-extension.scrollUpFast",
         "title": "Scroll Up Fast"
       },

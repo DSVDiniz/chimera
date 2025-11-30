@@ -50,17 +50,19 @@ export function activate(context: vscode.ExtensionContext) {
 
   updateStatus();
 
-  const nextErrordisposable = 
+  const nextErrordisposable =
     vscode.commands.registerCommand('my-extension.nextError', () => nextError(context));
-  const alignDisposable = 
+  const alignDisposable =
     vscode.commands.registerCommand('my-extension.alignCursors', () => alignCursors());
-  const addNumbersToCursorsDisposable = 
+  const addNumbersToCursorsDisposable =
     vscode.commands.registerCommand('my-extension.addNumbersToCursors', () => addNumbersToCursors());
-  const cycleCasingDisposable = 
+  const cycleCasingDisposable =
     vscode.commands.registerCommand('my-extension.cycleCasing', () => cycleCasing());
-  const scrollUpFastDisposable = 
+  const uniqueLinesDisposable =
+    vscode.commands.registerCommand('my-extension.uniqueLines', () => uniqueLines());
+  const scrollUpFastDisposable =
     vscode.commands.registerCommand('my-extension.scrollUpFast', () => scrollFast('up'));
-  const scrollDownFastDisposable = 
+  const scrollDownFastDisposable =
     vscode.commands.registerCommand('my-extension.scrollDownFast', () => scrollFast('down'));
 
   context.subscriptions.push(
@@ -68,6 +70,7 @@ export function activate(context: vscode.ExtensionContext) {
     alignDisposable,
     addNumbersToCursorsDisposable,
     cycleCasingDisposable,
+    uniqueLinesDisposable,
     scrollUpFastDisposable,
     scrollDownFastDisposable
   );
@@ -182,7 +185,7 @@ export const addNumbersToCursors = async (startNumberArg?: number) => {
     });
 
     if (startNumberStr === undefined) {
-      return; // User cancelled
+      return;
     }
     startNumber = startNumberStr ? Number(startNumberStr) : 0;
   }
@@ -397,6 +400,48 @@ const toUpperKebabCase = (text: string): string => {
     .replace(/-+/g, '-')
     .replace(/^-/, '')
     .toUpperCase();
+};
+
+export const uniqueLines = async () => {
+  const editor = vscode.window.activeTextEditor;
+  if (!editor) {
+    return;
+  }
+
+  const document = editor.document;
+  const selections = editor.selections;
+
+  await editor.edit((editBuilder) => {
+    for (const selection of selections) {
+      let range: vscode.Range;
+
+      if (selection.isEmpty) {
+        const firstLine = document.lineAt(0);
+        const lastLine = document.lineAt(document.lineCount - 1);
+        range = new vscode.Range(firstLine.range.start, lastLine.range.end);
+      } else {
+        const startLine = document.lineAt(selection.start.line);
+        const endLine = document.lineAt(selection.end.line);
+        range = new vscode.Range(startLine.range.start, endLine.range.end);
+      }
+
+      const text = document.getText(range);
+      const lines = text.split('\n');
+
+      const seen = new Set<string>();
+      const uniqueLines: string[] = [];
+
+      for (const line of lines) {
+        if (!seen.has(line)) {
+          seen.add(line);
+          uniqueLines.push(line);
+        }
+      }
+
+      const newText = uniqueLines.join('\n');
+      editBuilder.replace(range, newText);
+    }
+  });
 };
 
 export function deactivate() { }
