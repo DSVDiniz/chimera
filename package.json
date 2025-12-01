@@ -1,7 +1,7 @@
 {
-  "name": "my-extension",
-  "displayName": "my-extension",
-  "description": "",
+  "name": "chimera",
+  "displayName": "Chimera",
+  "description": "A compilation of focus-editor, sublime-text and other editors features",
   "version": "1.0.1",
   "engines": {
     "vscode": "^1.105.0"
@@ -15,16 +15,16 @@
   "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
-      "title": "My Extension",
+      "title": "Chimera",
       "properties": {
-        "my-extension.scrollFastLineCount": {
+        "chimera.scrollFastLineCount": {
           "type": "number",
           "default": 3,
           "minimum": 1,
           "maximum": 100,
           "description": "Number of lines to scroll when using Scroll Up/Down Fast commands"
         },
-        "my-extension.cycleCasingOrder": {
+        "chimera.cycleCasingOrder": {
           "type": "array",
           "default": [
             "camel",
@@ -58,87 +58,87 @@
     },
     "commands": [
       {
-        "command": "my-extension.nextError",
+        "command": "chimera.nextError",
         "title": "Jump to next error"
       },
       {
-        "command": "my-extension.alignCursors",
+        "command": "chimera.alignCursors",
         "title": "Align Cursors"
       },
       {
-        "command": "my-extension.addNumbersToCursors",
+        "command": "chimera.addNumbersToCursors",
         "title": "Adds numbers (counting up) to every cursor"
       },
       {
-        "command": "my-extension.cycleCasing",
+        "command": "chimera.cycleCasing",
         "title": "Cycles casing (pascal, snake...)"
       },
       {
-        "command": "my-extension.uniqueLines",
+        "command": "chimera.uniqueLines",
         "title": "Remove Duplicate Lines (Unique)"
       },
       {
-        "command": "my-extension.reverseLines",
+        "command": "chimera.reverseLines",
         "title": "Reverse Lines"
       },
       {
-        "command": "my-extension.shuffleLines",
+        "command": "chimera.shuffleLines",
         "title": "Shuffle Lines"
       },
       {
-        "command": "my-extension.sortLines",
+        "command": "chimera.sortLines",
         "title": "Sort Lines (Case Insensitive)"
       },
       {
-        "command": "my-extension.sortLinesCaseSensitive",
+        "command": "chimera.sortLinesCaseSensitive",
         "title": "Sort Lines (Case Sensitive)"
       },
       {
-        "command": "my-extension.splitArguments",
+        "command": "chimera.splitArguments",
         "title": "Split Arguments"
       },
       {
-        "command": "my-extension.unsplitArguments",
+        "command": "chimera.unsplitArguments",
         "title": "Unsplit Arguments"
       },
       {
-        "command": "my-extension.scrollUpFast",
+        "command": "chimera.scrollUpFast",
         "title": "Scroll Up Fast"
       },
       {
-        "command": "my-extension.scrollDownFast",
+        "command": "chimera.scrollDownFast",
         "title": "Scroll Down Fast"
       }
     ]
   },
   "keybindings": [
     {
-      "command": "my-extension.nextError",
+      "command": "chimera.nextError",
       "key": "ctrl+e",
       "when": "editorTextFocus"
     },
     {
-      "command": "my-extension.alignCursors",
+      "command": "chimera.alignCursors",
       "key": "alt+a",
       "when": "editorTextFocus"
     },
     {
-      "command": "my-extension.addNumbersToCursors",
+      "command": "chimera.addNumbersToCursors",
       "key": "alt+n",
       "when": "editorTextFocus"
     },
     {
-      "command": "my-extension.cycleCasing",
+      "command": "chimera.cycleCasing",
       "key": "alt+u",
       "when": "editorTextFocus"
     },
     {
-      "command": "my-extension.scrollUpFast",
+      "command": "chimera.scrollUpFast",
       "key": "ctrl+ArrowUp",
       "when": "editorTextFocus"
     },
     {
-      "command": "my-extension.scrollDownFast",
+      "command": "chimera.scrollDownFast",
       "key": "ctrl+ArrowDown",
       "when": "editorTextFocus"
     }

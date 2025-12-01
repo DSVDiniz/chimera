@@ -51,31 +51,31 @@ export function activate(context: vscode.ExtensionContext) {
   updateStatus();
 
   const nextErrordisposable =
-    vscode.commands.registerCommand('my-extension.nextError', () => nextError(context));
+    vscode.commands.registerCommand('chimera.nextError', () => nextError(context));
   const alignDisposable =
-    vscode.commands.registerCommand('my-extension.alignCursors', () => alignCursors());
+    vscode.commands.registerCommand('chimera.alignCursors', () => alignCursors());
   const addNumbersToCursorsDisposable =
-    vscode.commands.registerCommand('my-extension.addNumbersToCursors', () => addNumbersToCursors());
+    vscode.commands.registerCommand('chimera.addNumbersToCursors', () => addNumbersToCursors());
   const cycleCasingDisposable =
-    vscode.commands.registerCommand('my-extension.cycleCasing', () => cycleCasing());
+    vscode.commands.registerCommand('chimera.cycleCasing', () => cycleCasing());
   const uniqueLinesDisposable =
-    vscode.commands.registerCommand('my-extension.uniqueLines', () => uniqueLines());
+    vscode.commands.registerCommand('chimera.uniqueLines', () => uniqueLines());
   const reverseLinesDisposable =
-    vscode.commands.registerCommand('my-extension.reverseLines', () => reverseLines());
+    vscode.commands.registerCommand('chimera.reverseLines', () => reverseLines());
   const shuffleLinesDisposable =
-    vscode.commands.registerCommand('my-extension.shuffleLines', () => shuffleLines());
+    vscode.commands.registerCommand('chimera.shuffleLines', () => shuffleLines());
   const sortLinesDisposable =
-    vscode.commands.registerCommand('my-extension.sortLines', () => sortLines(false));
+    vscode.commands.registerCommand('chimera.sortLines', () => sortLines(false));
   const sortLinesCaseSensitiveDisposable =
-    vscode.commands.registerCommand('my-extension.sortLinesCaseSensitive', () => sortLines(true));
+    vscode.commands.registerCommand('chimera.sortLinesCaseSensitive', () => sortLines(true));
   const splitArgumentsDisposable =
-    vscode.commands.registerCommand('my-extension.splitArguments', () => splitArguments());
+    vscode.commands.registerCommand('chimera.splitArguments', () => splitArguments());
   const unsplitArgumentsDisposable =
-    vscode.commands.registerCommand('my-extension.unsplitArguments', () => unsplitArguments());
+    vscode.commands.registerCommand('chimera.unsplitArguments', () => unsplitArguments());
   const scrollUpFastDisposable =
-    vscode.commands.registerCommand('my-extension.scrollUpFast', () => scrollFast('up'));
+    vscode.commands.registerCommand('chimera.scrollUpFast', () => scrollFast('up'));
   const scrollDownFastDisposable =
-    vscode.commands.registerCommand('my-extension.scrollDownFast', () => scrollFast('down'));
+    vscode.commands.registerCommand('chimera.scrollDownFast', () => scrollFast('down'));
 
   context.subscriptions.push(
     nextErrordisposable,
@@ -95,7 +95,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export const scrollFast = async (direction: 'up' | 'down') => {
-  const config = vscode.workspace.getConfiguration('my-extension');
+  const config = vscode.workspace.getConfiguration('chimera');
   const lineCount = config.get<number>('scrollFastLineCount', 3);
 
   await vscode.commands.executeCommand('cursorMove', {
@@ -133,12 +133,12 @@ export const nextError = async (context: vscode.ExtensionContext) => {
     return a.diag.range.start.character - b.diag.range.start.character;
   });
 
-  const lastIndex = context.workspaceState.get<number>('my-extension.lastErrorIndex', -1);
+  const lastIndex = context.workspaceState.get<number>('chimera.lastErrorIndex', -1);
   const nextIndex = (lastIndex + 1) % errors.length;
 
   const err = errors[nextIndex];
 
-  await context.workspaceState.update('my-extension.lastErrorIndex', nextIndex);
+  await context.workspaceState.update('chimera.lastErrorIndex', nextIndex);
 
   const doc = await vscode.workspace.openTextDocument(err.uri);
   const newEditor = await vscode.window.showTextDocument(doc);
@@ -230,7 +230,7 @@ export const cycleCasing = async () => {
     return;
   }
 
-  const config = vscode.workspace.getConfiguration('my-extension');
+  const config = vscode.workspace.getConfiguration('chimera');
   const cycleOrder = config.get<CaseType[]>('cycleCasingOrder', [
     'camel', 'pascal', 'upper', 'upperSnake', 'snakePascal', 'snakeCamel', 'kebab', 'upperKebab', 'lower'
   ]);
