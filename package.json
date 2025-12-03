@@ -3,7 +3,7 @@
   "displayName": "Chimera",
   "description": "A compilation of focus-editor, sublime-text and other editors features",
   "version": "1.0.1",
-  "publisher": "DSVDiniz",
+  "publisher": "dsvdiniz",
   "engines": {
     "vscode": "^1.105.0"
   },
