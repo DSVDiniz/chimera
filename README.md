@@ -21,3 +21,4 @@
 ## Argument Formatting
 - **Split Arguments** (`chimera.splitArguments`): Split comma-separated values onto separate lines (smart handling of quotes/parens).
 - **Unsplit Arguments** (`chimera.unsplitArguments`): Join multi-line comma-separated values into a single compact line.
+- **Quote Words** (`chimera.quoteWords`): Adds quotes and commas to a list of words separated by spaces.

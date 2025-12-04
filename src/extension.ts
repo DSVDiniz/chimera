@@ -76,6 +76,8 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('chimera.scrollUpFast', () => scrollFast('up'));
   const scrollDownFastDisposable =
     vscode.commands.registerCommand('chimera.scrollDownFast', () => scrollFast('down'));
+  const quoteWordsDisposable =
+    vscode.commands.registerCommand('chimera.quoteWords', () => quoteWords());
 
   context.subscriptions.push(
     nextErrordisposable,
@@ -90,7 +92,8 @@ export function activate(context: vscode.ExtensionContext) {
     splitArgumentsDisposable,
     unsplitArgumentsDisposable,
     scrollUpFastDisposable,
-    scrollDownFastDisposable
+    scrollDownFastDisposable,
+    quoteWordsDisposable
   );
 }
 
@@ -216,10 +219,10 @@ export const addNumbersToCursors = async (startNumberArg?: number) => {
   });
 };
 
-let originalSelectionsText: string[] = [];
+export let originalSelectionsText: string[] = [];
 let lastResultSelections: readonly vscode.Selection[] = [];
 type CaseType = 'camel' | 'pascal' | 'upper' | 'upperSnake' | 'snake' | 'snakeCamel' | 'snakePascal' | 'kebab' | 'upperKebab' | 'lower';
-
+let defaultCycle: CaseType[] = ['camel', 'pascal', 'upper', 'upperSnake', 'snakePascal', 'snakeCamel', 'kebab', 'upperKebab', 'lower'];
 export const cycleCasing = async () => {
   const editor = vscode.window.activeTextEditor;
   if (!editor) {
@@ -231,9 +234,7 @@ export const cycleCasing = async () => {
   }
 
   const config = vscode.workspace.getConfiguration('chimera');
-  const cycleOrder = config.get<CaseType[]>('cycleCasingOrder', [
-    'camel', 'pascal', 'upper', 'upperSnake', 'snakePascal', 'snakeCamel', 'kebab', 'upperKebab', 'lower'
-  ]);
+  const cycleOrder = config.get<CaseType[]>('cycleCasingOrder', defaultCycle);
 
   let isContinuing = false;
   if (lastResultSelections.length === selections.length) {
@@ -384,9 +385,20 @@ const toSnakeCamelCase = (text: string): string => {
   return words[0] + words.slice(1).map(word => '_' + word.charAt(0).toUpperCase() + word.slice(1)).join('');
 };
 const toSnakePascalCase = (text: string): string => {
+  if (text.includes('_') || text.includes('-')) {
+    const words = text
+      .split(/[_-]/)
+      .filter(w => w.length > 0)
+      .map(w => w.toLowerCase());
+
+    if (words.length === 0) {
+      return text;
+    }
+
+    return words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('_');
+  }
   const words = text
     .replace(/([A-Z])/g, ' $1')
-    .replace(/[_-]/g, ' ')
     .trim()
     .toLowerCase()
     .split(/\s+/);
@@ -684,6 +696,30 @@ export const unsplitArguments = async () => {
         return acc + ' ' + curr;
       }, '');
       editBuilder.replace(range, newText);
+    }
+  });
+};
+
+export const quoteWords = async () => {
+  const editor = vscode.window.activeTextEditor;
+  if (!editor) {
+    return;
+  }
+
+  const selections = editor.selections;
+
+  await editor.edit((editBuilder) => {
+    for (const selection of selections) {
+      if (selection.isEmpty) {
+        continue;
+      }
+
+      const text = editor.document.getText(selection);
+      const words = text.trim().split(/\s+/);
+      const quotedWords = words.map(word => `"${word}"`);
+      const newText = quotedWords.join(', ');
+
+      editBuilder.replace(selection, newText);
     }
   });
 };

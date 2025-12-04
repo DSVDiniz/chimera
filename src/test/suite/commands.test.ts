@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as myExtension from '../../extension';
+import { originalSelectionsText } from '../../extension';
 
 suite('Extension Test Suite', () => {
     vscode.window.showInformationMessage('Start all tests.');
@@ -58,6 +59,120 @@ suite('Extension Test Suite', () => {
         await myExtension.cycleCasing();
         assert.strictEqual(doc.getText(), 'helloworld');
         // lowercase -> camel
+        await myExtension.cycleCasing();
+        assert.strictEqual(doc.getText(), 'helloWorld');
+    });
+
+    test('cycleCasing test camel -> pascal', async () => {
+        originalSelectionsText.push("helloWorld");
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'helloWorld'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 0, 0, 10);
+
+        // camel -> pascal
+        await myExtension.cycleCasing();
+        assert.strictEqual(doc.getText(), 'HelloWorld');
+    });
+
+    test('cycleCasing test pascal -> upper', async () => {
+        originalSelectionsText.push("helloWorld");
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'HelloWorld'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 0, 0, 10);
+
+        // pascal -> upper
+        await myExtension.cycleCasing();
+        assert.strictEqual(doc.getText(), 'HELLOWORLD');
+    });
+
+    test('cycleCasing test upper -> upper-snake', async () => {
+        originalSelectionsText.push("helloWorld");
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'HELLOWORLD'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 0, 0, 10);
+
+        // upper -> upper-snake
+        await myExtension.cycleCasing();
+        assert.strictEqual(doc.getText(), 'HELLO_WORLD');
+    });
+
+
+    test('cycleCasing test upper-snake -> pascal-snake', async () => {
+        originalSelectionsText.push("helloWorld");
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'HELLO_WORLD'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 0, 0, 11);
+
+        // upper-snake -> pascal-snake
+        await myExtension.cycleCasing();
+        assert.strictEqual(doc.getText(), 'Hello_World');
+    });
+    test('cycleCasing test pascal-snake -> camel-snake', async () => {
+        originalSelectionsText.push("helloWorld");
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'Hello_World'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 0, 0, 11);
+
+        // pascal-snake -> camel-snake
+        await myExtension.cycleCasing();
+        assert.strictEqual(doc.getText(), 'hello_World');
+    });
+    test('cycleCasing test camel-snake -> kebab-lower', async () => {
+        originalSelectionsText.push("helloWorld");
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'hello_World'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 0, 0, 11);
+
+        // camel-snake -> kebab-lower
+        await myExtension.cycleCasing();
+        assert.strictEqual(doc.getText(), 'hello-world');
+    });
+    test('cycleCasing test kebab-lower -> kebab-upper', async () => {
+        originalSelectionsText.push("helloWorld");
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'hello-world'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 0, 0, 11);
+
+        // kebab-lower -> kebab-upper
+        await myExtension.cycleCasing();
+        assert.strictEqual(doc.getText(), 'HELLO-WORLD');
+    });
+    test('cycleCasing test upper-kebab -> lowercase', async () => {
+        originalSelectionsText.push("helloWorld");
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'HELLO-WORLD'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 0, 0, 11);
+
+        // upper-kebab -> lowercase
+        await myExtension.cycleCasing();
+        assert.strictEqual(doc.getText(), 'helloworld');
+    });
+
+    test('cycleCasing test kebab-lower -> kebab-upper', async () => {
+        originalSelectionsText.push("helloWorld");
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'helloworld'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 0, 0, 10);
+
+        // kebab-lower -> kebab-upper
         await myExtension.cycleCasing();
         assert.strictEqual(doc.getText(), 'helloWorld');
     });
@@ -443,9 +558,6 @@ suite('Extension Test Suite', () => {
 
     test('unsplitArguments - complex cases (user example)', async () => {
         const input = '"aaaaaa yeah, yeah, yeah",\naux string, \n\'aux\'+ 5,\nfunc(a,b,c int),';
-        // The user's original example had inconsistent spacing: "...,aux string, 'aux'..."
-        // Since splitArguments trims spaces, unsplitArguments cannot restore inconsistent spacing.
-        // We enforce consistent compact formatting (no spaces after commas) to match the first part of the user's example.
         const expected = '"aaaaaa yeah, yeah, yeah",aux string,\'aux\'+ 5,func(a,b,c int),';
 
         const doc = await vscode.workspace.openTextDocument({
@@ -460,5 +572,50 @@ suite('Extension Test Suite', () => {
         const text = doc.getText();
 
         assert.strictEqual(text, expected);
+    });
+
+    test('quoteWords - convert to quoted words', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'assim que eu arrumar um bug aqui'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selection = new vscode.Selection(0, 0, 0, 33);
+
+        await myExtension.quoteWords();
+
+        const text = doc.getText();
+
+        assert.strictEqual(text, '"assim", "que", "eu", "arrumar", "um", "bug", "aqui"');
+    });
+
+    test('quoteWords - multiple words with extra spacing', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'hello   world    test'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selection = new vscode.Selection(0, 0, 0, 21);
+
+        await myExtension.quoteWords();
+
+        const text = doc.getText();
+
+        assert.strictEqual(text, '"hello", "world", "test"');
+    });
+
+    test('quoteWords - single word', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'hello'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selection = new vscode.Selection(0, 0, 0, 5);
+
+        await myExtension.quoteWords();
+
+        const text = doc.getText();
+
+        assert.strictEqual(text, '"hello"');
     });
 });
