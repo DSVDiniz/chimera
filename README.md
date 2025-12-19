@@ -18,7 +18,8 @@
 ## Based on another extension that doesn't work/exist anymore
 - **Add Numbers to Cursors** (`chimera.addNumbersToCursors`): Insert sequential numbers at each cursor position.
 
-## Argument Formatting
+## Miscellaneous
 - **Split Arguments** (`chimera.splitArguments`): Split comma-separated values onto separate lines (smart handling of quotes/parens).
 - **Unsplit Arguments** (`chimera.unsplitArguments`): Join multi-line comma-separated values into a single compact line.
 - **Quote Words** (`chimera.quoteWords`): Adds quotes and commas to a list of words separated by spaces.
+- **Switch Word Separators** (`chimera.switchWordSeparators`): Switch between different `editor.wordSeparators` profiles (e.g., "Default" vs "Default + _"). Configurable via `chimera.wordSeparatorProfiles`.

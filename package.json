@@ -62,6 +62,14 @@
             ]
           },
           "description": "Order in which to cycle through case types. Available: camel, pascal, upper, upperSnake, snake, snakePascal, snakeCamel, kebab, upperKebab, lower"
+        },
+        "chimera.wordSeparatorProfiles": {
+          "type": "object",
+          "default": {
+            "Default": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
+            "Default + _": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?_"
+          },
+          "description": "Profiles for word separators. Key is the profile name, value is the separator string."
         }
       }
     },
@@ -121,6 +129,10 @@
       {
         "command": "chimera.quoteWords",
         "title": "Quote Words"
+      },
+      {
+        "command": "chimera.switchWordSeparators",
+        "title": "Switch Word Separators"
       }
     ],
     "keybindings": [

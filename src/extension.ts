@@ -93,7 +93,8 @@ export function activate(context: vscode.ExtensionContext) {
     unsplitArgumentsDisposable,
     scrollUpFastDisposable,
     scrollDownFastDisposable,
-    quoteWordsDisposable
+    quoteWordsDisposable,
+    vscode.commands.registerCommand('chimera.switchWordSeparators', () => switchWordSeparators())
   );
 }
 
@@ -722,6 +723,46 @@ export const quoteWords = async () => {
       editBuilder.replace(selection, newText);
     }
   });
+};
+
+export const switchWordSeparators = async (profileName?: string) => {
+  const config = vscode.workspace.getConfiguration('chimera');
+  const profiles = config.get<Record<string, string>>('wordSeparatorProfiles', {});
+
+  if (Object.keys(profiles).length === 0) {
+    vscode.window.showInformationMessage('No word separator profiles defined in settings (chimera.wordSeparatorProfiles).');
+    return;
+  }
+
+  let selectedProfile = profileName;
+
+  if (!selectedProfile) {
+    const items = Object.entries(profiles).map(([key, value]) => ({
+      label: key,
+      description: value
+    }));
+
+    const selection = await vscode.window.showQuickPick(items, {
+      placeHolder: 'Select a word separator profile'
+    });
+
+    if (selection) {
+      selectedProfile = selection.label;
+    }
+  }
+
+  if (selectedProfile) {
+    const separators = profiles[selectedProfile];
+    if (separators === undefined) {
+      vscode.window.showErrorMessage(`Profile "${selectedProfile}" not found.`);
+      return;
+    }
+    const editorConfig = vscode.workspace.getConfiguration('editor');
+    await editorConfig.update('wordSeparators', separators, vscode.ConfigurationTarget.Global);
+    if (!profileName) {
+      vscode.window.showInformationMessage(`Switched word separators to profile "${selectedProfile}"`);
+    }
+  }
 };
 
 export function deactivate() { }
