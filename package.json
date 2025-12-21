@@ -67,7 +67,8 @@
           "type": "object",
           "default": {
             "Default": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
-            "Default + _": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?_"
+            "Default + _": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?_",
+            "eclipse": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?ABCDEFGHIJKLMNOPQRSTUVWXYZ"
           },
           "description": "Profiles for word separators. Key is the profile name, value is the separator string."
         }

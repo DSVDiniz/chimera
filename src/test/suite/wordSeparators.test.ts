@@ -66,4 +66,42 @@ suite('Word Separator Test Suite', () => {
             await config.update('wordSeparators', originalSeparators, vscode.ConfigurationTarget.Global);
         }
     });
+
+    test('switchWordSeparators - switch to eclipse profile', async () => {
+        // defined in package.json
+        const expectedSeparators = "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        await myExtension.switchWordSeparators('eclipse');
+
+        const config = vscode.workspace.getConfiguration('editor');
+        const currentSeparators = config.get<string>('wordSeparators');
+
+        assert.strictEqual(currentSeparators, expectedSeparators);
+    });
+
+    test('eclipse cursor movement', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'methodWithJavaNamingConvention'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        const config = vscode.workspace.getConfiguration('editor');
+        const originalSeparators = config.get<string>('wordSeparators');
+
+        try {
+            await myExtension.switchWordSeparators('eclipse');
+            editor.selection = new vscode.Selection(new vscode.Position(0, 0), new vscode.Position(0, 0));
+
+            await vscode.commands.executeCommand('cursorWordRight');
+            assert.strictEqual(editor.selection.active.character, 6, 'Should stop after "method"');
+
+            await vscode.commands.executeCommand('cursorWordRight');
+            assert.strictEqual(editor.selection.active.character, 10, 'Should stop after "With"');
+
+            await vscode.commands.executeCommand('cursorWordRight');
+            assert.strictEqual(editor.selection.active.character, 14, 'Should stop after "Java"');
+        } finally {
+            await config.update('wordSeparators', originalSeparators, vscode.ConfigurationTarget.Global);
+        }
+    });
 });
