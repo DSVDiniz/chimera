@@ -9,6 +9,7 @@ export { uniqueLines, reverseLines, shuffleLines, sortLines } from './lines';
 export { splitArguments, unsplitArguments } from './arguments';
 export { scrollFast } from './navigation';
 export { quoteWords, cycleQuotes } from './quotes';
+export { increaseSelection } from './selection';
 
 import { activateSelectionStatus } from './statusBar';
 import { activateWordSeparators, switchWordSeparators } from './wordSeparators';
@@ -19,6 +20,7 @@ import { uniqueLines, reverseLines, shuffleLines, sortLines } from './lines';
 import { splitArguments, unsplitArguments } from './arguments';
 import { scrollFast } from './navigation';
 import { quoteWords, cycleQuotes } from './quotes';
+import { increaseSelection } from './selection';
 
 export function activate(context: vscode.ExtensionContext) {
   activateSelectionStatus(context);
@@ -41,7 +43,9 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('chimera.scrollDownFast', () => scrollFast('down')),
     vscode.commands.registerCommand('chimera.quoteWords', () => quoteWords()),
     vscode.commands.registerCommand('chimera.switchWordSeparators', () => switchWordSeparators()),
-    vscode.commands.registerCommand('chimera.cycleQuotes', () => cycleQuotes())
+    vscode.commands.registerCommand('chimera.cycleQuotes', () => cycleQuotes()),
+    vscode.commands.registerCommand('chimera.increaseSelectionLeft', () => increaseSelection('left')),
+    vscode.commands.registerCommand('chimera.increaseSelectionRight', () => increaseSelection('right'))
   );
 }
 

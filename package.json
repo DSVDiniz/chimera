@@ -2,7 +2,7 @@
   "name": "chimera",
   "displayName": "Chimera",
   "description": "A compilation of focus-editor, sublime-text and other editors features",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "publisher": "dsvdiniz",
   "engines": {
     "vscode": "^1.105.0"
@@ -159,9 +159,29 @@
         "command": "chimera.cycleQuotes",
         "title": "Cycle Quotes",
         "category": "Chimera"
+      },
+      {
+        "command": "chimera.increaseSelectionLeft",
+        "title": "Increase Selection Left",
+        "category": "Chimera"
+      },
+      {
+        "command": "chimera.increaseSelectionRight",
+        "title": "Increase Selection Right",
+        "category": "Chimera"
       }
     ],
     "keybindings": [
+      {
+        "command": "chimera.increaseSelectionLeft",
+        "key": "alt+left",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "chimera.increaseSelectionRight",
+        "key": "alt+right",
+        "when": "editorTextFocus"
+      },
       {
         "command": "chimera.nextError",
         "key": "ctrl+e",
