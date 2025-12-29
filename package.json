@@ -2,7 +2,7 @@
   "name": "chimera",
   "displayName": "Chimera",
   "description": "A compilation of focus-editor, sublime-text and other editors features",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "publisher": "dsvdiniz",
   "engines": {
     "vscode": "^1.105.0"
@@ -77,67 +77,88 @@
     "commands": [
       {
         "command": "chimera.nextError",
-        "title": "Jump to next error"
+        "title": "Jump to next error",
+        "category": "Chimera"
       },
       {
         "command": "chimera.alignCursors",
-        "title": "Align Cursors"
+        "title": "Align Cursors",
+        "category": "Chimera"
       },
       {
         "command": "chimera.addNumbersToCursors",
-        "title": "Adds numbers (counting up) to every cursor"
+        "title": "Adds numbers (counting up) to every cursor",
+        "category": "Chimera"
       },
       {
         "command": "chimera.cycleCasing",
-        "title": "Cycles casing (pascal, snake...)"
+        "title": "Cycles casing (pascal, snake...)",
+        "category": "Chimera"
+      },
+      {
+        "command": "chimera.swapCase",
+        "title": "Swap Case",
+        "category": "Chimera"
       },
       {
         "command": "chimera.uniqueLines",
-        "title": "Remove Duplicate Lines (Unique)"
+        "title": "Remove Duplicate Lines (Unique)",
+        "category": "Chimera"
       },
       {
         "command": "chimera.reverseLines",
-        "title": "Reverse Lines"
+        "title": "Reverse Lines",
+        "category": "Chimera"
       },
       {
         "command": "chimera.shuffleLines",
-        "title": "Shuffle Lines"
+        "title": "Shuffle Lines",
+        "category": "Chimera"
       },
       {
         "command": "chimera.sortLines",
-        "title": "Sort Lines (Case Insensitive)"
+        "title": "Sort Lines (Case Insensitive)",
+        "category": "Chimera"
       },
       {
         "command": "chimera.sortLinesCaseSensitive",
-        "title": "Sort Lines (Case Sensitive)"
+        "title": "Sort Lines (Case Sensitive)",
+        "category": "Chimera"
       },
       {
         "command": "chimera.splitArguments",
-        "title": "Split Arguments"
+        "title": "Split Arguments",
+        "category": "Chimera"
       },
       {
         "command": "chimera.unsplitArguments",
-        "title": "Unsplit Arguments"
+        "title": "Unsplit Arguments",
+        "category": "Chimera"
       },
       {
         "command": "chimera.scrollUpFast",
-        "title": "Scroll Up Fast"
+        "title": "Scroll Up Fast",
+        "category": "Chimera"
       },
       {
         "command": "chimera.scrollDownFast",
-        "title": "Scroll Down Fast"
+        "title": "Scroll Down Fast",
+        "category": "Chimera"
       },
       {
         "command": "chimera.quoteWords",
-        "title": "Quote Words"
+        "title": "Quote Words",
+        "category": "Chimera"
       },
       {
         "command": "chimera.switchWordSeparators",
-        "title": "Switch Word Separators"
+        "title": "Switch Word Separators",
+        "category": "Chimera"
       },
       {
         "command": "chimera.cycleQuotes",
-        "title": "Cycle Quotes"
+        "title": "Cycle Quotes",
+        "category": "Chimera"
       }
     ],
     "keybindings": [

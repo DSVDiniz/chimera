@@ -229,3 +229,33 @@ const caseConverters: Record<CaseType, (text: string) => string> = {
     upperKebab: toUpperKebabCase,
     lower: (text: string) => text.replace(/[-_]/g, '').toLowerCase()
 };
+
+export const swapCase = async () => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        return;
+    }
+    const selections = editor.selections;
+    if (!selections || selections.length === 0) {
+        return;
+    }
+
+    await editor.edit((editBuilder) => {
+        for (const selection of selections) {
+            if (selection.isEmpty) {
+                continue;
+            }
+            const currentText = editor.document.getText(selection);
+            let newText = '';
+            for (let i = 0; i < currentText.length; i++) {
+                const char = currentText[i];
+                if (char === char.toUpperCase()) {
+                    newText += char.toLowerCase();
+                } else {
+                    newText += char.toUpperCase();
+                }
+            }
+            editBuilder.replace(selection, newText);
+        }
+    });
+};

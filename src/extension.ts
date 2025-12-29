@@ -4,7 +4,7 @@ export { activateSelectionStatus } from './statusBar';
 export { activateWordSeparators, switchWordSeparators } from './wordSeparators';
 export { nextError } from './diagnostics';
 export { alignCursors, addNumbersToCursors } from './cursors';
-export { cycleCasing, originalSelectionsText } from './casing';
+export { cycleCasing, originalSelectionsText, swapCase } from './casing';
 export { uniqueLines, reverseLines, shuffleLines, sortLines } from './lines';
 export { splitArguments, unsplitArguments } from './arguments';
 export { scrollFast } from './navigation';
@@ -14,7 +14,7 @@ import { activateSelectionStatus } from './statusBar';
 import { activateWordSeparators, switchWordSeparators } from './wordSeparators';
 import { nextError } from './diagnostics';
 import { alignCursors, addNumbersToCursors } from './cursors';
-import { cycleCasing } from './casing';
+import { cycleCasing, swapCase } from './casing';
 import { uniqueLines, reverseLines, shuffleLines, sortLines } from './lines';
 import { splitArguments, unsplitArguments } from './arguments';
 import { scrollFast } from './navigation';
@@ -29,6 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('chimera.alignCursors', () => alignCursors()),
     vscode.commands.registerCommand('chimera.addNumbersToCursors', () => addNumbersToCursors()),
     vscode.commands.registerCommand('chimera.cycleCasing', () => cycleCasing()),
+    vscode.commands.registerCommand('chimera.swapCase', () => swapCase()),
     vscode.commands.registerCommand('chimera.uniqueLines', () => uniqueLines()),
     vscode.commands.registerCommand('chimera.reverseLines', () => reverseLines()),
     vscode.commands.registerCommand('chimera.shuffleLines', () => shuffleLines()),

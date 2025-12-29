@@ -14,6 +14,7 @@
 - **Unique Lines** (`chimera.uniqueLines`): Remove duplicate lines from selection.
 - **Reverse Lines** (`chimera.reverseLines`): Reverse the order of selected lines.
 - **Shuffle Lines** (`chimera.shuffleLines`): Randomly shuffle selected lines.
+- **Swap Case** (`chimera.swapCase`): Swap the case of selected text (uppercase to lowercase and vice versa).
 
 ## Based on another extension that doesn't work/exist anymore
 - **Add Numbers to Cursors** (`chimera.addNumbersToCursors`): Insert sequential numbers at each cursor position.
