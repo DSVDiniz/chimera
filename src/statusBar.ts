@@ -38,7 +38,7 @@ export const activateSelectionStatus = (context: vscode.ExtensionContext) => {
 
         const linesText = totalLines === 1 ? "1 line" : `${totalLines} lines`;
 
-        selectionStatus.text = `Sel ${linesText}`;
+        selectionStatus.text = `${linesText}`;
         selectionStatus.show();
     };
 
