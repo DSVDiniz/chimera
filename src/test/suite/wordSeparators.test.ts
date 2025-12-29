@@ -5,7 +5,6 @@ import * as myExtension from '../../extension';
 suite('Word Separator Test Suite', () => {
 
     test('switchWordSeparators - switch to Default + _ profile', async () => {
-        // defined in package.json
         const expectedSeparators = "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?_";
 
         await myExtension.switchWordSeparators('Default + _');
@@ -17,7 +16,6 @@ suite('Word Separator Test Suite', () => {
     });
 
     test('switchWordSeparators - switch to Default profile', async () => {
-        // defined in package.json
         const expectedSeparators = "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?";
 
         await myExtension.switchWordSeparators('Default');
@@ -68,10 +66,9 @@ suite('Word Separator Test Suite', () => {
     });
 
     test('switchWordSeparators - switch to eclipse profile', async () => {
-        // defined in package.json
         const expectedSeparators = "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-        await myExtension.switchWordSeparators('eclipse');
+        await myExtension.switchWordSeparators('Eclipse-like');
 
         const config = vscode.workspace.getConfiguration('editor');
         const currentSeparators = config.get<string>('wordSeparators');
@@ -89,7 +86,7 @@ suite('Word Separator Test Suite', () => {
         const originalSeparators = config.get<string>('wordSeparators');
 
         try {
-            await myExtension.switchWordSeparators('eclipse');
+            await myExtension.switchWordSeparators('Eclipse-like');
             editor.selection = new vscode.Selection(new vscode.Position(0, 0), new vscode.Position(0, 0));
 
             await vscode.commands.executeCommand('cursorWordRight');
@@ -100,6 +97,26 @@ suite('Word Separator Test Suite', () => {
 
             await vscode.commands.executeCommand('cursorWordRight');
             assert.strictEqual(editor.selection.active.character, 14, 'Should stop after "Java"');
+        } finally {
+            await config.update('wordSeparators', originalSeparators, vscode.ConfigurationTarget.Global);
+        }
+    });
+
+    test('status bar updates correctly', async () => {
+        const config = vscode.workspace.getConfiguration('editor');
+        const originalSeparators = config.get<string>('wordSeparators');
+
+        try {
+            await myExtension.switchWordSeparators('Default');
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await myExtension.switchWordSeparators('Eclipse-like');
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const statusText = await vscode.commands.executeCommand('chimera.getWordSeparatorStatusText');
+            assert.strictEqual(statusText, '$(file-code) Eclipse-like');
+
+            await myExtension.switchWordSeparators('Default');
+            await new Promise(resolve => setTimeout(resolve, 500));
         } finally {
             await config.update('wordSeparators', originalSeparators, vscode.ConfigurationTarget.Global);
         }

@@ -23,3 +23,4 @@
 - **Unsplit Arguments** (`chimera.unsplitArguments`): Join multi-line comma-separated values into a single compact line.
 - **Quote Words** (`chimera.quoteWords`): Adds quotes and commas to a list of words separated by spaces.
 - **Switch Word Separators** (`chimera.switchWordSeparators`): Switch between different `editor.wordSeparators` profiles (e.g., "Default" vs "Default + _"). Configurable via `chimera.wordSeparatorProfiles`.
+- **Cycle Quotes** (`chimera.cycleQuotes`): Cycles through quote types (`"` -> `'` -> `` ` `` -> `"`). Auto-detects surrounding quotes and handles multi-line backticks.
