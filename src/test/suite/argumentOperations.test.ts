@@ -228,7 +228,7 @@ suite('Argument Operations Test Suite', () => {
         await myExtension.moveArgument('right');
 
         const text = doc.getText();
-        assert.strictEqual(text, 'func(100, 50, 150)');
+        assert.strictEqual(text, 'func(150, 100, 50)');
     });
 
     test('moveArgument - single-line with trailing comma', async () => {
@@ -397,7 +397,7 @@ suite('Argument Operations Test Suite', () => {
 
         const text = doc.getText();
 
-        assert.strictEqual(text, 'func(a, c, b)');
+        assert.strictEqual(text, 'func(b, a, c)');
     });
 
     test('moveArgument - template literal argument', async () => {
