@@ -46,7 +46,6 @@ suite('Selection Commands Test Suite', () => {
         assert.strictEqual(doc.getText(editor.selection), '\nline2');
 
         await myExtension.increaseSelection('left');
-        await myExtension.increaseSelection('left');
         assert.strictEqual(doc.getText(editor.selection), '1\nline2');
     });
 
@@ -67,4 +66,19 @@ suite('Selection Commands Test Suite', () => {
         assert.strictEqual(doc.getText(sels[0]), 'foo');
         assert.strictEqual(doc.getText(sels[1]), 'baz');
     });
+
+    test('increaseSelection does nothing with no active selection', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'hello world'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selection = new vscode.Selection(0, 5, 0, 5);
+
+        await myExtension.increaseSelection('left');
+
+        assert.strictEqual(editor.selection.isEmpty, true);
+        assert.strictEqual(editor.selection.start.character, 5);
+    });
 });
+

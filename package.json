@@ -169,6 +169,16 @@
         "command": "chimera.increaseSelectionRight",
         "title": "Increase Selection Right",
         "category": "Chimera"
+      },
+      {
+        "command": "chimera.moveArgumentLeft",
+        "title": "Move Argument Left",
+        "category": "Chimera"
+      },
+      {
+        "command": "chimera.moveArgumentRight",
+        "title": "Move Argument Right",
+        "category": "Chimera"
       }
     ],
     "keybindings": [
@@ -210,6 +220,16 @@
       {
         "command": "chimera.scrollDownFast",
         "key": "ctrl+ArrowDown",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "chimera.moveArgumentLeft",
+        "key": "shift+alt+left",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "chimera.moveArgumentRight",
+        "key": "shift+alt+right",
         "when": "editorTextFocus"
       }
     ]

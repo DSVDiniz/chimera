@@ -6,6 +6,10 @@ export function increaseSelection(direction: 'left' | 'right') {
         return;
     }
 
+    if (editor.selections.every(s => s.isEmpty)) {
+        return;
+    }
+
     const doc = editor.document;
     const newSelections = editor.selections.map(selection => {
         let newStart = selection.start;

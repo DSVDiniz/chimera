@@ -6,7 +6,7 @@ export { nextError } from './diagnostics';
 export { alignCursors, addNumbersToCursors } from './cursors';
 export { cycleCasing, originalSelectionsText, swapCase } from './casing';
 export { uniqueLines, reverseLines, shuffleLines, sortLines } from './lines';
-export { splitArguments, unsplitArguments } from './arguments';
+export { splitArguments, unsplitArguments, moveArgument } from './arguments';
 export { scrollFast } from './navigation';
 export { quoteWords, cycleQuotes } from './quotes';
 export { increaseSelection } from './selection';
@@ -17,7 +17,7 @@ import { nextError } from './diagnostics';
 import { alignCursors, addNumbersToCursors } from './cursors';
 import { cycleCasing, swapCase } from './casing';
 import { uniqueLines, reverseLines, shuffleLines, sortLines } from './lines';
-import { splitArguments, unsplitArguments } from './arguments';
+import { splitArguments, unsplitArguments, moveArgument } from './arguments';
 import { scrollFast } from './navigation';
 import { quoteWords, cycleQuotes } from './quotes';
 import { increaseSelection } from './selection';
@@ -45,7 +45,9 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('chimera.switchWordSeparators', () => switchWordSeparators()),
     vscode.commands.registerCommand('chimera.cycleQuotes', () => cycleQuotes()),
     vscode.commands.registerCommand('chimera.increaseSelectionLeft', () => increaseSelection('left')),
-    vscode.commands.registerCommand('chimera.increaseSelectionRight', () => increaseSelection('right'))
+    vscode.commands.registerCommand('chimera.increaseSelectionRight', () => increaseSelection('right')),
+    vscode.commands.registerCommand('chimera.moveArgumentLeft', () => moveArgument('left')),
+    vscode.commands.registerCommand('chimera.moveArgumentRight', () => moveArgument('right'))
   );
 }
 

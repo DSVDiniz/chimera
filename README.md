@@ -22,8 +22,10 @@
 ## Miscellaneous
 - **Split Arguments** (`chimera.splitArguments`): Split comma-separated values onto separate lines (smart handling of quotes/parens).
 - **Unsplit Arguments** (`chimera.unsplitArguments`): Join multi-line comma-separated values into a single compact line.
+- **Move Argument Left** (`chimera.moveArgumentLeft`) (`shift+alt+left`): Swap the argument at cursor position with the one to its left.
+- **Move Argument Right** (`chimera.moveArgumentRight`) (`shift+alt+right`): Swap the argument at cursor position with the one to its right.
 - **Quote Words** (`chimera.quoteWords`): Adds quotes and commas to a list of words separated by spaces.
 - **Switch Word Separators** (`chimera.switchWordSeparators`): Switch between different `editor.wordSeparators` profiles (e.g., "Default" vs "Default + _"). Configurable via `chimera.wordSeparatorProfiles`.
 - **Cycle Quotes** (`chimera.cycleQuotes`): Cycles through quote types (`"` -> `'` -> `` ` `` -> `"`). Auto-detects surrounding quotes and handles multi-line backticks.
-- **Increase Selection Left** (`chimera.increaseSelectionLeft`) (`alt+left`): Expands the selection to the left by one character.
-- **Increase Selection Right** (`chimera.increaseSelectionRight`) (`alt+right`): Expands the selection to the right by one character.
+- **Increase Selection Left** (`chimera.increaseSelectionLeft`) (`alt+left`): While selecting, expands the selection to the left by one character.
+- **Increase Selection Right** (`chimera.increaseSelectionRight`) (`alt+right`): While selecting, expands the selection to the right by one character.
