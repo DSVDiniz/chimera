@@ -25,7 +25,10 @@
 - **Move Argument Left** (`chimera.moveArgumentLeft`) (`shift+alt+left`): Swap the argument at cursor position with the one to its left.
 - **Move Argument Right** (`chimera.moveArgumentRight`) (`shift+alt+right`): Swap the argument at cursor position with the one to its right.
 - **Quote Words** (`chimera.quoteWords`): Adds quotes and commas to a list of words separated by spaces.
-- **Switch Word Separators** (`chimera.switchWordSeparators`): Switch between different `editor.wordSeparators` profiles (e.g., "Default" vs "Default + _"). Configurable via `chimera.wordSeparatorProfiles`.
+- **Switch Word Separators** (`chimera.switchWordSeparators`): Switch between different `editor.wordSeparators` profiles. Configurable via `chimera.wordSeparatorProfiles`.
+- **Cursor Word Right (Secondary)** (`chimera.cursorWordRightSecondary`) (`alt+right`): Move cursor right using the secondary word separator profile. Configurable via `chimera.secondaryWordSeparatorProfile`.
+- **Cursor Word Left (Secondary)** (`chimera.cursorWordLeftSecondary`) (`alt+left`): Move cursor left using the secondary word separator profile.
+- **Switch Secondary Word Separators** (`chimera.switchSecondaryWordSeparators`): Change which profile is used for secondary word navigation.
 - **Cycle Quotes** (`chimera.cycleQuotes`): Cycles through quote types (`"` -> `'` -> `` ` `` -> `"`). Auto-detects surrounding quotes and handles multi-line backticks.
-- **Increase Selection Left** (`chimera.increaseSelectionLeft`) (`alt+left`): While selecting, expands the selection to the left by one character.
-- **Increase Selection Right** (`chimera.increaseSelectionRight`) (`alt+right`): While selecting, expands the selection to the right by one character.
+- **Increase Selection Left** (`chimera.increaseSelectionLeft`): While selecting, expands the selection to the left by one character.
+- **Increase Selection Right** (`chimera.increaseSelectionRight`): While selecting, expands the selection to the right by one character.

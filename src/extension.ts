@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 export { activateSelectionStatus } from './statusBar';
-export { activateWordSeparators, switchWordSeparators } from './wordSeparators';
+export { activateWordSeparators, switchWordSeparators, cursorWordSecondary, switchSecondaryWordSeparators } from './wordSeparators';
 export { nextError } from './diagnostics';
 export { alignCursors, addNumbersToCursors } from './cursors';
 export { cycleCasing, originalSelectionsText, swapCase } from './casing';
@@ -12,7 +12,7 @@ export { quoteWords, cycleQuotes } from './quotes';
 export { increaseSelection } from './selection';
 
 import { activateSelectionStatus } from './statusBar';
-import { activateWordSeparators, switchWordSeparators } from './wordSeparators';
+import { activateWordSeparators, switchWordSeparators, cursorWordSecondary, switchSecondaryWordSeparators } from './wordSeparators';
 import { nextError } from './diagnostics';
 import { alignCursors, addNumbersToCursors } from './cursors';
 import { cycleCasing, swapCase } from './casing';
@@ -47,7 +47,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('chimera.increaseSelectionLeft', () => increaseSelection('left')),
     vscode.commands.registerCommand('chimera.increaseSelectionRight', () => increaseSelection('right')),
     vscode.commands.registerCommand('chimera.moveArgumentLeft', () => moveArgument('left')),
-    vscode.commands.registerCommand('chimera.moveArgumentRight', () => moveArgument('right'))
+    vscode.commands.registerCommand('chimera.moveArgumentRight', () => moveArgument('right')),
+    vscode.commands.registerCommand('chimera.cursorWordRightSecondary', () => cursorWordSecondary('right')),
+    vscode.commands.registerCommand('chimera.cursorWordLeftSecondary', () => cursorWordSecondary('left')),
+    vscode.commands.registerCommand('chimera.switchSecondaryWordSeparators', () => switchSecondaryWordSeparators())
   );
 }
 

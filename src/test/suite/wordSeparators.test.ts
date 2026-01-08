@@ -4,17 +4,6 @@ import * as myExtension from '../../extension';
 
 suite('Word Separator Test Suite', () => {
 
-    test('switchWordSeparators - switch to Default + _ profile', async () => {
-        const expectedSeparators = "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?_";
-
-        await myExtension.switchWordSeparators('Default + _');
-
-        const config = vscode.workspace.getConfiguration('editor');
-        const currentSeparators = config.get<string>('wordSeparators');
-
-        assert.strictEqual(currentSeparators, expectedSeparators);
-    });
-
     test('switchWordSeparators - switch to Default profile', async () => {
         const expectedSeparators = "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?";
 
@@ -36,33 +25,6 @@ suite('Word Separator Test Suite', () => {
         const separatorsAfter = configAfter.get<string>('wordSeparators');
 
         assert.strictEqual(separatorsAfter, separatorsBefore);
-    });
-    test('cursor movement integration test', async () => {
-        const doc = await vscode.workspace.openTextDocument({
-            content: 'hello_world'
-        });
-        const editor = await vscode.window.showTextDocument(doc);
-
-        const config = vscode.workspace.getConfiguration('editor');
-        const originalSeparators = config.get<string>('wordSeparators');
-
-        try {
-            await myExtension.switchWordSeparators('Default + _');
-
-            const positionEnd = new vscode.Position(0, 11);
-            editor.selection = new vscode.Selection(positionEnd, positionEnd);
-
-            await vscode.commands.executeCommand('cursorWordLeft');
-            assert.strictEqual(editor.selection.active.character, 6, 'With "_" as separator, cursor should stop at start of "world"');
-            await myExtension.switchWordSeparators('Default');
-
-            editor.selection = new vscode.Selection(positionEnd, positionEnd);
-            await vscode.commands.executeCommand('cursorWordLeft');
-            assert.strictEqual(editor.selection.active.character, 0, 'Without "_" as separator, cursor should stop at start of "hello_world"');
-
-        } finally {
-            await config.update('wordSeparators', originalSeparators, vscode.ConfigurationTarget.Global);
-        }
     });
 
     test('switchWordSeparators - switch to eclipse profile', async () => {
@@ -121,4 +83,35 @@ suite('Word Separator Test Suite', () => {
             await config.update('wordSeparators', originalSeparators, vscode.ConfigurationTarget.Global);
         }
     });
+
+    test('cursorWordSecondary - moves right with Eclipse-like separators', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'methodWithJavaNamingConvention'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selection = new vscode.Selection(new vscode.Position(0, 0), new vscode.Position(0, 0));
+
+        await myExtension.cursorWordSecondary('right');
+        assert.strictEqual(editor.selection.active.character, 6, 'Should stop at "W" in "With"');
+
+        await myExtension.cursorWordSecondary('right');
+        assert.strictEqual(editor.selection.active.character, 10, 'Should stop at "J" in "Java"');
+    });
+
+    test('cursorWordSecondary - moves left with Eclipse-like separators', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'methodWithJavaNaming'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selection = new vscode.Selection(new vscode.Position(0, 20), new vscode.Position(0, 20));
+
+        await myExtension.cursorWordSecondary('left');
+        assert.strictEqual(editor.selection.active.character, 15, 'Should stop after "N" in "Naming"');
+
+        await myExtension.cursorWordSecondary('left');
+        assert.strictEqual(editor.selection.active.character, 11, 'Should stop after "J" in "Java"');
+    });
 });
+
