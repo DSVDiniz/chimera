@@ -13,18 +13,17 @@ export const alignCursors = async () => {
 
     let maxCol = 0;
     for (const selection of selections) {
-        if (selection.active.character > maxCol) {
-            maxCol = selection.active.character;
+        if (selection.start.character > maxCol) {
+            maxCol = selection.start.character;
         }
     }
 
     await editor.edit((editBuilder) => {
-        for (let i = 0; i < selections.length; i++) {
-            const selection = selections[i];
-            const currentCol = selection.active.character;
-            let spacesNeeded = maxCol - currentCol;
+        for (const selection of selections) {
+            const currentCol = selection.start.character;
+            const spacesNeeded = maxCol - currentCol;
             if (spacesNeeded > 0) {
-                editBuilder.insert(selection.active, ' '.repeat(spacesNeeded));
+                editBuilder.insert(selection.start, ' '.repeat(spacesNeeded));
             }
         }
     });
