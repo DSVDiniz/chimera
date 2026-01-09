@@ -48,10 +48,6 @@ export const activateWordSeparators = (context: vscode.ExtensionContext) => {
     );
 };
 
-export const setSuppressStatusUpdate = (value: boolean) => {
-    suppressStatusUpdate = value;
-};
-
 export const switchWordSeparators = async (profileName?: string) => {
     const config = vscode.workspace.getConfiguration('chimera');
     const profiles = config.get<Record<string, string>>('wordSeparatorProfiles', {});

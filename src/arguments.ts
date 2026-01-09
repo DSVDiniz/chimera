@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 
-const smartSplit = (text: string): string[] => {
+type SplitOptions = { trim: boolean; preserveEmpty: boolean };
+
+const smartSplit = (text: string, options: SplitOptions = { trim: true, preserveEmpty: false }): string[] => {
     const parts: string[] = [];
     let currentPart = '';
     let inQuote: string | null = null;
@@ -32,7 +34,10 @@ const smartSplit = (text: string): string[] => {
                 case ']': bracketLevel--; currentPart += char; break;
                 case ',':
                     if (parenLevel === 0 && braceLevel === 0 && bracketLevel === 0) {
-                        parts.push(currentPart.trim());
+                        const part = options.trim ? currentPart.trim() : currentPart;
+                        if (options.preserveEmpty || part) {
+                            parts.push(part);
+                        }
                         currentPart = '';
                     } else {
                         currentPart += char;
@@ -43,8 +48,10 @@ const smartSplit = (text: string): string[] => {
             }
         }
     }
-    if (currentPart.trim()) {
-        parts.push(currentPart.trim());
+
+    const finalPart = options.trim ? currentPart.trim() : currentPart;
+    if (options.preserveEmpty || finalPart) {
+        parts.push(finalPart);
     }
     return parts;
 };
@@ -55,20 +62,15 @@ export const splitArguments = async () => {
         return;
     }
 
-    const selections = editor.selections;
-
     await editor.edit((editBuilder) => {
-        for (const selection of selections) {
+        for (const selection of editor.selections) {
             if (selection.isEmpty) {
                 continue;
             }
 
             const text = editor.document.getText(selection);
-
             const parts = smartSplit(text);
-
-            const newText = parts.join(',\n');
-            editBuilder.replace(selection, newText);
+            editBuilder.replace(selection, parts.join(',\n'));
         }
     });
 };
@@ -80,10 +82,9 @@ export const unsplitArguments = async () => {
     }
 
     const document = editor.document;
-    const selections = editor.selections;
 
     await editor.edit((editBuilder) => {
-        for (const selection of selections) {
+        for (const selection of editor.selections) {
             if (selection.isEmpty) {
                 continue;
             }
@@ -92,9 +93,7 @@ export const unsplitArguments = async () => {
             const endLine = document.lineAt(selection.end.line);
             const range = new vscode.Range(startLine.range.start, endLine.range.end);
 
-            const text = document.getText(range);
-            const lines = text.split('\n');
-
+            const lines = document.getText(range).split('\n');
             const trimmedLines = lines.map(line => line.trim());
 
             const newText = trimmedLines.reduce((acc, curr, idx) => {
@@ -102,11 +101,9 @@ export const unsplitArguments = async () => {
                     return curr;
                 }
                 const prev = trimmedLines[idx - 1];
-                if (prev.endsWith(',')) {
-                    return acc + curr;
-                }
-                return acc + ' ' + curr;
+                return prev.endsWith(',') ? acc + curr : acc + ' ' + curr;
             }, '');
+
             editBuilder.replace(range, newText);
         }
     });
@@ -148,129 +145,13 @@ const findParentheses = (text: string, cursorOffset: number): { openParen: numbe
         }
     }
 
-    if (closeParen === -1) {
-        return null;
-    }
-
-    return { openParen, closeParen };
+    return closeParen === -1 ? null : { openParen, closeParen };
 };
 
-const smartSplitPreserveWhitespace = (text: string): string[] => {
-    const parts: string[] = [];
-    let currentPart = '';
-    let inQuote: string | null = null;
-    let parenLevel = 0;
-    let braceLevel = 0;
-    let bracketLevel = 0;
-
-    for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-
-        if (inQuote) {
-            currentPart += char;
-            if (char === inQuote && text[i - 1] !== '\\') {
-                inQuote = null;
-            }
-        } else {
-            switch (char) {
-                case '"':
-                case "'":
-                case '`':
-                    inQuote = char;
-                    currentPart += char;
-                    break;
-                case '(': parenLevel++; currentPart += char; break;
-                case ')': parenLevel--; currentPart += char; break;
-                case '{': braceLevel++; currentPart += char; break;
-                case '}': braceLevel--; currentPart += char; break;
-                case '[': bracketLevel++; currentPart += char; break;
-                case ']': bracketLevel--; currentPart += char; break;
-                case ',':
-                    if (parenLevel === 0 && braceLevel === 0 && bracketLevel === 0) {
-                        parts.push(currentPart.trim());
-                        currentPart = '';
-                    } else {
-                        currentPart += char;
-                    }
-                    break;
-                default:
-                    currentPart += char;
-            }
-        }
-    }
-    if (currentPart.trim()) {
-        parts.push(currentPart.trim());
-    }
-    return parts;
-};
-
-const smartSplitPreserveRaw = (text: string): string[] => {
-    const parts: string[] = [];
-    let currentPart = '';
-    let inQuote: string | null = null;
-    let parenLevel = 0;
-    let braceLevel = 0;
-    let bracketLevel = 0;
-
-    for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-
-        if (inQuote) {
-            currentPart += char;
-            if (char === inQuote && text[i - 1] !== '\\') {
-                inQuote = null;
-            }
-        } else {
-            switch (char) {
-                case '"':
-                case "'":
-                case '`':
-                    inQuote = char;
-                    currentPart += char;
-                    break;
-                case '(': parenLevel++; currentPart += char; break;
-                case ')': parenLevel--; currentPart += char; break;
-                case '{': braceLevel++; currentPart += char; break;
-                case '}': braceLevel--; currentPart += char; break;
-                case '[': bracketLevel++; currentPart += char; break;
-                case ']': bracketLevel--; currentPart += char; break;
-                case ',':
-                    if (parenLevel === 0 && braceLevel === 0 && bracketLevel === 0) {
-                        parts.push(currentPart);
-                        currentPart = '';
-                    } else {
-                        currentPart += char;
-                    }
-                    break;
-                default:
-                    currentPart += char;
-            }
-        }
-    }
-    if (currentPart) {
-        parts.push(currentPart);
-    }
-    return parts;
-};
-
-const findArgumentIndex = (args: string[], cursorOffsetInArgs: number): number => {
-    let currentOffset = 0;
-    for (let i = 0; i < args.length; i++) {
-        const argLength = args[i].length;
-        const endOffset = currentOffset + argLength;
-        if (cursorOffsetInArgs <= endOffset) {
-            return i;
-        }
-        currentOffset = endOffset + 1;
-    }
-    return args.length - 1;
-};
-
-const findArgumentIndexRaw = (rawArgs: string[], cursorOffsetInArgs: number): number => {
+const findArgumentIndex = (rawArgs: string[], cursorOffsetInArgs: number): number => {
     let currentOffset = 0;
     for (let i = 0; i < rawArgs.length; i++) {
-        const argLength = rawArgs[i].length;
-        const endOffset = currentOffset + argLength;
+        const endOffset = currentOffset + rawArgs[i].length;
         if (cursorOffsetInArgs <= endOffset) {
             return i;
         }
@@ -287,7 +168,6 @@ export const moveArgument = async (direction: 'left' | 'right') => {
 
     const document = editor.document;
     const cursorPosition = editor.selection.active;
-
     const fullText = document.getText();
     const cursorOffset = document.offsetAt(cursorPosition);
 
@@ -297,7 +177,7 @@ export const moveArgument = async (direction: 'left' | 'right') => {
     }
 
     const argsText = fullText.substring(parens.openParen + 1, parens.closeParen);
-    const rawArgs = smartSplitPreserveRaw(argsText);
+    const rawArgs = smartSplit(argsText, { trim: false, preserveEmpty: true });
     const args = rawArgs.map(a => a.trim());
 
     if (args.length < 2) {
@@ -305,7 +185,7 @@ export const moveArgument = async (direction: 'left' | 'right') => {
     }
 
     const cursorOffsetInArgs = cursorOffset - parens.openParen - 1;
-    const argIndex = findArgumentIndexRaw(rawArgs, cursorOffsetInArgs);
+    const argIndex = findArgumentIndex(rawArgs, cursorOffsetInArgs);
 
     let targetIndex: number;
     if (direction === 'left') {
@@ -323,7 +203,7 @@ export const moveArgument = async (direction: 'left' | 'right') => {
     const newArgs = [...args];
     [newArgs[argIndex], newArgs[targetIndex]] = [newArgs[targetIndex], newArgs[argIndex]];
 
-    const newArgsText = newArgs.join(', ');
+    const newArgsText = newArgs.filter(a => a).join(', ');
 
     const startPos = document.positionAt(parens.openParen + 1);
     const endPos = document.positionAt(parens.closeParen);
@@ -342,5 +222,3 @@ export const moveArgument = async (direction: 'left' | 'right') => {
     const newPosition = document.positionAt(newCursorOffset);
     editor.selection = new vscode.Selection(newPosition, newPosition);
 };
-
-

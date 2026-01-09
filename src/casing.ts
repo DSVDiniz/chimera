@@ -20,22 +20,13 @@ export const cycleCasing = async () => {
 
     let isContinuing = false;
     if (lastResultSelections.length === selections.length) {
-        isContinuing = true;
-        for (let i = 0; i < selections.length; i++) {
-            if (!selections[i].isEqual(lastResultSelections[i])) {
-                isContinuing = false;
-                break;
-            }
-        }
+        isContinuing = selections.every((sel, i) => sel.isEqual(lastResultSelections[i]));
     }
 
     if (!isContinuing) {
-        originalSelectionsText = [];
-        for (let i = 0; i < selections.length; i++) {
-            const currentText = editor.document.getText(selections[i]);
-            originalSelectionsText.push(currentText);
-        }
+        originalSelectionsText = selections.map(sel => editor.document.getText(sel));
     }
+
     await editor.edit((editBuilder) => {
         for (let i = 0; i < selections.length; i++) {
             const selection = selections[i];
@@ -50,10 +41,7 @@ export const cycleCasing = async () => {
             const nextIndex = (currentIndex + 1) % cycleOrder.length;
             const nextCase = cycleOrder[nextIndex];
 
-            const converter = caseConverters[nextCase];
-            const newText = converter(originalText);
-
-            editBuilder.replace(selection, newText);
+            editBuilder.replace(selection, caseConverters[nextCase](originalText));
         }
     });
 
@@ -76,8 +64,7 @@ const detectCase = (text: string): CaseType => {
         if (text === text.toUpperCase() && text !== text.toLowerCase()) {
             return 'upperSnake';
         }
-        const hasUpperAfterUnderscore = /_[A-Z]/.test(text);
-        if (hasUpperAfterUnderscore) {
+        if (/_[A-Z]/.test(text)) {
             if (/^[A-Z]/.test(text)) {
                 return 'snakePascal';
             }
@@ -85,6 +72,7 @@ const detectCase = (text: string): CaseType => {
         }
         return 'snake';
     }
+
     if (text === text.toUpperCase() && text !== text.toLowerCase()) {
         return 'upper';
     }
@@ -94,140 +82,80 @@ const detectCase = (text: string): CaseType => {
     if (/^[A-Z]/.test(text)) {
         return 'pascal';
     }
-
     return 'camel';
 };
 
-const toCamelCase = (text: string): string => {
-    const words = text
-        .replace(/([A-Z])/g, ' $1')
-        .replace(/_/g, ' ')
-        .trim()
-        .toLowerCase()
-        .split(/\s+/);
-
-    if (words.length === 0) {
-        return text;
-    }
-
-    return words[0] + words.slice(1).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
-};
-
-const toPascalCase = (text: string): string => {
-    const words = text
-        .replace(/([A-Z])/g, ' $1')
-        .replace(/[_-]/g, ' ')
-        .trim()
-        .toLowerCase()
-        .split(/\s+/);
-
-    if (words.length === 0) {
-        return text;
-    }
-
-    return words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
-};
-
-const toUpperSnakeCase = (text: string): string => {
-    const words = text
+const splitIntoWords = (text: string): string[] => {
+    return text
         .replace(/([a-z])([A-Z])/g, '$1 $2')
         .replace(/[_-]/g, ' ')
         .trim()
         .toLowerCase()
-        .split(/\s+/);
-
-    if (words.length === 0) {
-        return text;
-    }
-
-    return words.join('_').toUpperCase();
+        .split(/\s+/)
+        .filter(w => w.length > 0);
 };
 
-const toSnakeCase = (text: string): string => {
-    const words = text
-        .replace(/([a-z])([A-Z])/g, '$1 $2')
-        .replace(/[_-]/g, ' ')
-        .trim()
-        .toLowerCase()
-        .split(/\s+/);
+const capitalize = (word: string): string => word.charAt(0).toUpperCase() + word.slice(1);
 
-    if (words.length === 0) {
-        return text;
-    }
-
-    return words.join('_');
-};
-
-const toSnakeCamelCase = (text: string): string => {
-    const words = text
-        .replace(/([A-Z])/g, ' $1')
-        .replace(/[_-]/g, ' ')
-        .trim()
-        .toLowerCase()
-        .split(/\s+/);
-
-    if (words.length === 0) {
-        return text;
-    }
-
-    return words[0] + words.slice(1).map(word => '_' + word.charAt(0).toUpperCase() + word.slice(1)).join('');
-};
-
-const toSnakePascalCase = (text: string): string => {
-    if (text.includes('_') || text.includes('-')) {
-        const words = text
-            .split(/[_-]/)
-            .filter(w => w.length > 0)
-            .map(w => w.toLowerCase());
-
+const caseConverters: Record<CaseType, (text: string) => string> = {
+    camel: (text) => {
+        const words = splitIntoWords(text);
         if (words.length === 0) {
             return text;
         }
-
-        return words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('_');
-    }
-    const words = text
-        .replace(/([A-Z])/g, ' $1')
-        .trim()
-        .toLowerCase()
-        .split(/\s+/);
-
-    if (words.length === 0) {
-        return text;
-    }
-
-    return words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('_');
-};
-
-const toKebabCase = (text: string): string => {
-    return text
-        .replace(/([A-Z])/g, '-$1')
-        .replace(/[\s_]+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-/, '')
-        .toLowerCase();
-};
-
-const toUpperKebabCase = (text: string): string => {
-    return text
-        .replace(/([A-Z])/g, '-$1')
-        .replace(/[\s_]+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-/, '')
-        .toUpperCase();
-};
-
-const caseConverters: Record<CaseType, (text: string) => string> = {
-    camel: toCamelCase,
-    pascal: toPascalCase,
-    upper: (text: string) => text.toUpperCase(),
-    upperSnake: toUpperSnakeCase,
-    snake: toSnakeCase,
-    snakeCamel: toSnakeCamelCase,
-    snakePascal: toSnakePascalCase,
-    kebab: toKebabCase,
-    upperKebab: toUpperKebabCase,
-    lower: (text: string) => text.replace(/[-_]/g, '').toLowerCase()
+        return words[0] + words.slice(1).map(capitalize).join('');
+    },
+    pascal: (text) => {
+        const words = splitIntoWords(text);
+        if (words.length === 0) {
+            return text;
+        }
+        return words.map(capitalize).join('');
+    },
+    upper: (text) => text.toUpperCase(),
+    upperSnake: (text) => {
+        const words = splitIntoWords(text);
+        if (words.length === 0) {
+            return text;
+        }
+        return words.join('_').toUpperCase();
+    },
+    snake: (text) => {
+        const words = splitIntoWords(text);
+        if (words.length === 0) {
+            return text;
+        }
+        return words.join('_');
+    },
+    snakeCamel: (text) => {
+        const words = splitIntoWords(text);
+        if (words.length === 0) {
+            return text;
+        }
+        return words[0] + words.slice(1).map(w => '_' + capitalize(w)).join('');
+    },
+    snakePascal: (text) => {
+        const words = splitIntoWords(text);
+        if (words.length === 0) {
+            return text;
+        }
+        return words.map(capitalize).join('_');
+    },
+    kebab: (text) => {
+        const words = splitIntoWords(text);
+        if (words.length === 0) {
+            return text;
+        }
+        return words.join('-');
+    },
+    upperKebab: (text) => {
+        const words = splitIntoWords(text);
+        if (words.length === 0) {
+            return text;
+        }
+        return words.join('-').toUpperCase();
+    },
+    lower: (text) => text.replace(/[-_]/g, '').toLowerCase()
 };
 
 export const swapCase = async () => {
@@ -235,27 +163,22 @@ export const swapCase = async () => {
     if (!editor) {
         return;
     }
-    const selections = editor.selections;
-    if (!selections || selections.length === 0) {
-        return;
-    }
 
     await editor.edit((editBuilder) => {
-        for (const selection of selections) {
+        for (const selection of editor.selections) {
             if (selection.isEmpty) {
                 continue;
             }
-            const currentText = editor.document.getText(selection);
-            let newText = '';
-            for (let i = 0; i < currentText.length; i++) {
-                const char = currentText[i];
-                if (char === char.toUpperCase()) {
-                    newText += char.toLowerCase();
+            const text = editor.document.getText(selection);
+            let swapped = '';
+            for (const c of text) {
+                if (c === c.toUpperCase()) {
+                    swapped += c.toLowerCase();
                 } else {
-                    newText += char.toUpperCase();
+                    swapped += c.toUpperCase();
                 }
             }
-            editBuilder.replace(selection, newText);
+            editBuilder.replace(selection, swapped);
         }
     });
 };
