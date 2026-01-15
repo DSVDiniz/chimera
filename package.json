@@ -2,7 +2,7 @@
   "name": "chimera",
   "displayName": "Chimera",
   "description": "A compilation of focus-editor, sublime-text and other editors features",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "publisher": "dsvdiniz",
   "engines": {
     "vscode": "^1.105.0"
