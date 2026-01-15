@@ -27,41 +27,15 @@ suite('Word Separator Test Suite', () => {
         assert.strictEqual(separatorsAfter, separatorsBefore);
     });
 
-    test('switchWordSeparators - switch to eclipse profile', async () => {
-        const expectedSeparators = "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    test('switchWordSeparators - switch to Default + _ profile', async () => {
+        const expectedSeparators = "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?_";
 
-        await myExtension.switchWordSeparators('Eclipse-like');
+        await myExtension.switchWordSeparators('Default + _');
 
         const config = vscode.workspace.getConfiguration('editor');
         const currentSeparators = config.get<string>('wordSeparators');
 
         assert.strictEqual(currentSeparators, expectedSeparators);
-    });
-
-    test('eclipse cursor movement', async () => {
-        const doc = await vscode.workspace.openTextDocument({
-            content: 'methodWithJavaNamingConvention'
-        });
-        const editor = await vscode.window.showTextDocument(doc);
-
-        const config = vscode.workspace.getConfiguration('editor');
-        const originalSeparators = config.get<string>('wordSeparators');
-
-        try {
-            await myExtension.switchWordSeparators('Eclipse-like');
-            editor.selection = new vscode.Selection(new vscode.Position(0, 0), new vscode.Position(0, 0));
-
-            await vscode.commands.executeCommand('cursorWordRight');
-            assert.strictEqual(editor.selection.active.character, 6, 'Should stop after "method"');
-
-            await vscode.commands.executeCommand('cursorWordRight');
-            assert.strictEqual(editor.selection.active.character, 10, 'Should stop after "With"');
-
-            await vscode.commands.executeCommand('cursorWordRight');
-            assert.strictEqual(editor.selection.active.character, 14, 'Should stop after "Java"');
-        } finally {
-            await config.update('wordSeparators', originalSeparators, vscode.ConfigurationTarget.Global);
-        }
     });
 
     test('status bar updates correctly', async () => {
@@ -71,11 +45,11 @@ suite('Word Separator Test Suite', () => {
         try {
             await myExtension.switchWordSeparators('Default');
             await new Promise(resolve => setTimeout(resolve, 500));
-            await myExtension.switchWordSeparators('Eclipse-like');
+            await myExtension.switchWordSeparators('Default + _');
             await new Promise(resolve => setTimeout(resolve, 500));
 
             const statusText = await vscode.commands.executeCommand('chimera.getWordSeparatorStatusText');
-            assert.strictEqual(statusText, '$(file-code) Eclipse-like');
+            assert.strictEqual(statusText, '$(file-code) Default + _');
 
             await myExtension.switchWordSeparators('Default');
             await new Promise(resolve => setTimeout(resolve, 500));
@@ -83,35 +57,4 @@ suite('Word Separator Test Suite', () => {
             await config.update('wordSeparators', originalSeparators, vscode.ConfigurationTarget.Global);
         }
     });
-
-    test('cursorWordSecondary - moves right with Eclipse-like separators', async () => {
-        const doc = await vscode.workspace.openTextDocument({
-            content: 'methodWithJavaNamingConvention'
-        });
-        const editor = await vscode.window.showTextDocument(doc);
-
-        editor.selection = new vscode.Selection(new vscode.Position(0, 0), new vscode.Position(0, 0));
-
-        await myExtension.cursorWordSecondary('right');
-        assert.strictEqual(editor.selection.active.character, 6, 'Should stop at "W" in "With"');
-
-        await myExtension.cursorWordSecondary('right');
-        assert.strictEqual(editor.selection.active.character, 10, 'Should stop at "J" in "Java"');
-    });
-
-    test('cursorWordSecondary - moves left with Eclipse-like separators', async () => {
-        const doc = await vscode.workspace.openTextDocument({
-            content: 'methodWithJavaNaming'
-        });
-        const editor = await vscode.window.showTextDocument(doc);
-
-        editor.selection = new vscode.Selection(new vscode.Position(0, 20), new vscode.Position(0, 20));
-
-        await myExtension.cursorWordSecondary('left');
-        assert.strictEqual(editor.selection.active.character, 15, 'Should stop after "N" in "Naming"');
-
-        await myExtension.cursorWordSecondary('left');
-        assert.strictEqual(editor.selection.active.character, 11, 'Should stop after "J" in "Java"');
-    });
 });
-

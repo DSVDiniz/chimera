@@ -67,15 +67,9 @@
           "type": "object",
           "default": {
             "Default": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
-            "Default + _": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?_",
-            "Eclipse-like": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "Default + _": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?_"
           },
           "description": "Profiles for word separators. Key is the profile name, value is the separator string."
-        },
-        "chimera.secondaryWordSeparatorProfile": {
-          "type": "string",
-          "default": "Eclipse-like",
-          "description": "The word separator profile to use for secondary word navigation (alt+right/left)."
         }
       }
     },
@@ -184,21 +178,6 @@
         "command": "chimera.moveArgumentRight",
         "title": "Move Argument Right",
         "category": "Chimera"
-      },
-      {
-        "command": "chimera.cursorWordRightSecondary",
-        "title": "Cursor Word Right (Secondary Profile)",
-        "category": "Chimera"
-      },
-      {
-        "command": "chimera.cursorWordLeftSecondary",
-        "title": "Cursor Word Left (Secondary Profile)",
-        "category": "Chimera"
-      },
-      {
-        "command": "chimera.switchSecondaryWordSeparators",
-        "title": "Switch Secondary Word Separators",
-        "category": "Chimera"
       }
     ],
     "keybindings": [
@@ -240,16 +219,6 @@
       {
         "command": "chimera.moveArgumentRight",
         "key": "shift+alt+right",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "chimera.cursorWordRightSecondary",
-        "key": "alt+right",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "chimera.cursorWordLeftSecondary",
-        "key": "alt+left",
         "when": "editorTextFocus"
       }
     ]
