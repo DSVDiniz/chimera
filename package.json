@@ -2,7 +2,7 @@
   "name": "chimera",
   "displayName": "Chimera",
   "description": "A compilation of focus-editor, sublime-text and other editors features",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "publisher": "dsvdiniz",
   "engines": {
     "vscode": "^1.105.0"
@@ -77,6 +77,11 @@
       {
         "command": "chimera.nextError",
         "title": "Jump to next error",
+        "category": "Chimera"
+      },
+      {
+        "command": "chimera.nextErrorInFile",
+        "title": "Jump to next error in current file",
         "category": "Chimera"
       },
       {
@@ -167,6 +172,26 @@
       {
         "command": "chimera.increaseSelectionRight",
         "title": "Increase Selection Right",
+        "category": "Chimera"
+      },
+      {
+        "command": "chimera.moveSelectionLeft",
+        "title": "Move Selection Left",
+        "category": "Chimera"
+      },
+      {
+        "command": "chimera.moveSelectionRight",
+        "title": "Move Selection Right",
+        "category": "Chimera"
+      },
+      {
+        "command": "chimera.moveSelectionWordLeft",
+        "title": "Move Selection Word Left",
+        "category": "Chimera"
+      },
+      {
+        "command": "chimera.moveSelectionWordRight",
+        "title": "Move Selection Word Right",
         "category": "Chimera"
       },
       {

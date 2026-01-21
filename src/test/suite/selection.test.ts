@@ -80,5 +80,113 @@ suite('Selection Commands Test Suite', () => {
         assert.strictEqual(editor.selection.isEmpty, true);
         assert.strictEqual(editor.selection.start.character, 5);
     });
-});
 
+    test('moveSelectionLeft - basic', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'this is a text'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 11, 0, 13);
+
+        await myExtension.moveSelection('left', false);
+
+        assert.strictEqual(doc.getText(), 'this is a extt');
+        assert.strictEqual(editor.selection.start.character, 10);
+        assert.strictEqual(editor.selection.end.character, 12);
+        assert.strictEqual(doc.getText(editor.selection), 'ex');
+    });
+
+    test('moveSelectionRight - basic', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'this is a text'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 11, 0, 13);
+
+        await myExtension.moveSelection('right', false);
+
+        assert.strictEqual(doc.getText(), 'this is a ttex');
+        assert.strictEqual(editor.selection.start.character, 12);
+        assert.strictEqual(editor.selection.end.character, 14);
+        assert.strictEqual(doc.getText(editor.selection), 'ex');
+    });
+
+    test('moveSelectionLeft - at start of document does nothing', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'hello world'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 0, 0, 2);
+
+        await myExtension.moveSelection('left', false);
+
+        assert.strictEqual(doc.getText(), 'hello world');
+        assert.strictEqual(editor.selection.start.character, 0);
+    });
+
+    test('moveSelectionRight - at end of document does nothing', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'hello world'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 9, 0, 11);
+
+        await myExtension.moveSelection('right', false);
+
+        assert.strictEqual(doc.getText(), 'hello world');
+        assert.strictEqual(editor.selection.end.character, 11);
+    });
+
+    test('moveSelection does nothing with no selection', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'hello world'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 5, 0, 5); // Just cursor, no selection
+
+        await myExtension.moveSelection('left', false);
+
+        assert.strictEqual(doc.getText(), 'hello world');
+        assert.strictEqual(editor.selection.isEmpty, true);
+    });
+
+    test('moveSelectionWordLeft - basic', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'hello world test'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 12, 0, 16);
+
+        await myExtension.moveSelection('left', true);
+
+        const text = doc.getText();
+        assert.ok(text.includes('test'), 'Text should still contain "test"');
+        assert.strictEqual(doc.getText(editor.selection), 'test');
+    });
+
+    test('moveSelectionWordRight - basic', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'hello world test'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(0, 0, 0, 5);
+
+        await myExtension.moveSelection('right', true);
+
+        const text = doc.getText();
+        assert.ok(text.includes('hello'), 'Text should still contain "hello"');
+        assert.strictEqual(doc.getText(editor.selection), 'hello');
+    });
+
+    test('moveSelectionLeft - moves across newline', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'line1\nABC'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+        editor.selection = new vscode.Selection(1, 0, 1, 1);
+
+        await myExtension.moveSelection('left', false);
+
+        assert.strictEqual(doc.getText(), 'line1A\nBC');
+    });
+});
