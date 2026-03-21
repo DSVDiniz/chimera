@@ -1,10 +1,24 @@
 import * as vscode from 'vscode';
 
+const isUriInWorkspace = (uri: vscode.Uri): boolean => {
+    if (uri.scheme === 'untitled') {
+        return true;
+    }
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {
+        return false;
+    }
+    return workspaceFolders.some(folder => uri.fsPath.startsWith(folder.uri.fsPath));
+};
+
 export const nextError = async (_context: vscode.ExtensionContext) => {
     const allDiagnostics = vscode.languages.getDiagnostics();
     let errors: { uri: vscode.Uri; diag: vscode.Diagnostic }[] = [];
 
     for (const [uri, diags] of allDiagnostics) {
+        if (!isUriInWorkspace(uri)) {
+            continue;
+        }
         for (const d of diags) {
             if (d.severity === vscode.DiagnosticSeverity.Error) {
                 errors.push({ uri, diag: d });
@@ -54,7 +68,9 @@ export const nextError = async (_context: vscode.ExtensionContext) => {
         targetError = otherFileErrors.length > 0 ? otherFileErrors[0] : errors[0];
     }
 
-    const doc = await vscode.workspace.openTextDocument(targetError.uri);
+    const doc = vscode.workspace.textDocuments.find(
+        d => d.uri.toString() === targetError.uri.toString()
+    ) ?? await vscode.workspace.openTextDocument(targetError.uri);
     const newEditor = await vscode.window.showTextDocument(doc);
 
     newEditor.revealRange(targetError.diag.range, vscode.TextEditorRevealType.InCenter);
@@ -64,7 +80,6 @@ export const nextError = async (_context: vscode.ExtensionContext) => {
 export const nextErrorInFile = async (_context: vscode.ExtensionContext) => {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
-        vscode.window.showInformationMessage("No active editor.");
         return;
     }
 
