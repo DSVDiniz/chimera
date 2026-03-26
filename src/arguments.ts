@@ -109,55 +109,202 @@ export const unsplitArguments = async () => {
     });
 };
 
-const findParentheses = (text: string, cursorOffset: number): { openParen: number; closeParen: number } | null => {
-    let parenLevel = 0;
-    let openParen = -1;
-
-    for (let i = cursorOffset; i >= 0; i--) {
-        const char = text[i];
-        if (char === ')') {
-            parenLevel++;
-        } else if (char === '(') {
-            if (parenLevel === 0) {
-                openParen = i;
-                break;
-            }
-            parenLevel--;
-        }
-    }
-
-    if (openParen === -1) {
-        return null;
-    }
-
-    parenLevel = 0;
-    let closeParen = -1;
-    for (let i = openParen; i < text.length; i++) {
-        const char = text[i];
-        if (char === '(') {
-            parenLevel++;
-        } else if (char === ')') {
-            parenLevel--;
-            if (parenLevel === 0) {
-                closeParen = i;
-                break;
-            }
-        }
-    }
-
-    return closeParen === -1 ? null : { openParen, closeParen };
+type DelimiterSpan = {
+    open: number;
+    close: number;
 };
 
-const findArgumentIndex = (rawArgs: string[], cursorOffsetInArgs: number): number => {
-    let currentOffset = 0;
-    for (let i = 0; i < rawArgs.length; i++) {
-        const endOffset = currentOffset + rawArgs[i].length;
-        if (cursorOffsetInArgs <= endOffset) {
+type ParsedArgument = {
+    raw: string;
+    trimmed: string;
+    rawStart: number;
+    rawEnd: number;
+    trimmedStart: number;
+    trimmedEnd: number;
+};
+
+const OPEN_TO_CLOSE: Record<string, string> = {
+    '(': ')',
+    '[': ']',
+    '{': '}'
+};
+
+const CLOSE_TO_OPEN: Record<string, string> = {
+    ')': '(',
+    ']': '[',
+    '}': '{'
+};
+
+const parseArguments = (text: string): ParsedArgument[] => {
+    const args: ParsedArgument[] = [];
+    let currentPart = '';
+    let inQuote: string | null = null;
+    let parenLevel = 0;
+    let braceLevel = 0;
+    let bracketLevel = 0;
+    let segmentStart = 0;
+
+    const pushSegment = (segmentEnd: number) => {
+        const raw = currentPart;
+        const leadingTrim = raw.length - raw.trimStart().length;
+        const trailingTrim = raw.length - raw.trimEnd().length;
+        const trimmed = raw.trim();
+
+        args.push({
+            raw,
+            trimmed,
+            rawStart: segmentStart,
+            rawEnd: segmentEnd,
+            trimmedStart: segmentStart + leadingTrim,
+            trimmedEnd: segmentEnd - trailingTrim
+        });
+    };
+
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+
+        if (inQuote) {
+            currentPart += char;
+            if (char === inQuote && text[i - 1] !== '\\') {
+                inQuote = null;
+            }
+            continue;
+        }
+
+        switch (char) {
+            case '"':
+            case '\'':
+            case '`':
+                inQuote = char;
+                currentPart += char;
+                break;
+            case '(':
+                parenLevel++;
+                currentPart += char;
+                break;
+            case ')':
+                parenLevel--;
+                currentPart += char;
+                break;
+            case '{':
+                braceLevel++;
+                currentPart += char;
+                break;
+            case '}':
+                braceLevel--;
+                currentPart += char;
+                break;
+            case '[':
+                bracketLevel++;
+                currentPart += char;
+                break;
+            case ']':
+                bracketLevel--;
+                currentPart += char;
+                break;
+            case ',':
+                if (parenLevel === 0 && braceLevel === 0 && bracketLevel === 0) {
+                    pushSegment(i);
+                    currentPart = '';
+                    segmentStart = i + 1;
+                } else {
+                    currentPart += char;
+                }
+                break;
+            default:
+                currentPart += char;
+        }
+    }
+
+    pushSegment(text.length);
+
+    return args;
+};
+
+const findEnclosingDelimiterSpans = (
+    text: string,
+    selectionStart: number,
+    selectionEnd: number
+): DelimiterSpan[] => {
+    const spans: DelimiterSpan[] = [];
+    const stack: Array<{ char: string; pos: number }> = [];
+    let inQuote: string | null = null;
+
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+
+        if (inQuote) {
+            if (char === inQuote && text[i - 1] !== '\\') {
+                inQuote = null;
+            }
+            continue;
+        }
+
+        if (char === '"' || char === '\'' || char === '`') {
+            inQuote = char;
+            continue;
+        }
+
+        if (char in OPEN_TO_CLOSE) {
+            stack.push({ char, pos: i });
+            continue;
+        }
+
+        if (char in CLOSE_TO_OPEN) {
+            const expectedOpen = CLOSE_TO_OPEN[char];
+            let openEntry: { char: string; pos: number } | undefined;
+
+            while (stack.length > 0) {
+                const candidate = stack.pop();
+                if (!candidate) {
+                    break;
+                }
+                if (candidate.char === expectedOpen) {
+                    openEntry = candidate;
+                    break;
+                }
+            }
+
+            if (openEntry) {
+                const encloses = openEntry.pos < selectionStart && selectionEnd < i;
+                if (encloses) {
+                    spans.push({ open: openEntry.pos, close: i });
+                }
+            }
+        }
+    }
+
+    return spans.sort((a, b) => (a.close - a.open) - (b.close - b.open));
+};
+
+const findArgumentIndex = (
+    args: ParsedArgument[],
+    cursorOffsetInArgs: number,
+    selectionStartInArgs: number,
+    selectionEndInArgs: number
+): number => {
+    if (selectionStartInArgs < selectionEndInArgs) {
+        for (let i = 0; i < args.length; i++) {
+            if (selectionStartInArgs >= args[i].trimmedStart && selectionEndInArgs <= args[i].trimmedEnd) {
+                return i;
+            }
+        }
+
+        for (let i = 0; i < args.length; i++) {
+            const intersects = selectionStartInArgs < args[i].trimmedEnd && selectionEndInArgs > args[i].trimmedStart;
+            if (intersects) {
+                return i;
+            }
+        }
+    }
+
+    for (let i = 0; i < args.length; i++) {
+        if (cursorOffsetInArgs <= args[i].rawEnd) {
             return i;
         }
-        currentOffset = endOffset + 1;
     }
-    return rawArgs.length - 1;
+
+    return args.length - 1;
 };
 
 export const moveArgument = async (direction: 'left' | 'right') => {
@@ -167,58 +314,75 @@ export const moveArgument = async (direction: 'left' | 'right') => {
     }
 
     const document = editor.document;
-    const cursorPosition = editor.selection.active;
+    const selection = editor.selection;
+    const cursorPosition = selection.active;
     const fullText = document.getText();
     const cursorOffset = document.offsetAt(cursorPosition);
+    const selectionStartOffset = document.offsetAt(selection.start);
+    const selectionEndOffset = document.offsetAt(selection.end);
 
-    const parens = findParentheses(fullText, cursorOffset);
-    if (!parens) {
+    const candidates = findEnclosingDelimiterSpans(fullText, selectionStartOffset, selectionEndOffset);
+    if (candidates.length === 0) {
         return;
     }
 
-    const argsText = fullText.substring(parens.openParen + 1, parens.closeParen);
-    const rawArgs = smartSplit(argsText, { trim: false, preserveEmpty: true });
-    const args = rawArgs.map(a => a.trim());
+    for (const candidate of candidates) {
+        const argsText = fullText.substring(candidate.open + 1, candidate.close);
+        const parsedArgs = parseArguments(argsText).filter(arg => arg.trimmed.length > 0);
 
-    if (args.length < 2) {
+        if (parsedArgs.length < 2) {
+            continue;
+        }
+
+        const containerStart = candidate.open + 1;
+        const cursorOffsetInArgs = cursorOffset - containerStart;
+        const selectionStartInArgs = selectionStartOffset - containerStart;
+        const selectionEndInArgs = selectionEndOffset - containerStart;
+
+        const argIndex = findArgumentIndex(parsedArgs, cursorOffsetInArgs, selectionStartInArgs, selectionEndInArgs);
+
+        let targetIndex: number;
+        if (direction === 'left') {
+            if (argIndex <= 0) {
+                continue;
+            }
+            targetIndex = argIndex - 1;
+        } else {
+            if (argIndex >= parsedArgs.length - 1) {
+                continue;
+            }
+            targetIndex = argIndex + 1;
+        }
+
+        const args = parsedArgs.map(arg => arg.trimmed);
+        const newArgs = [...args];
+        [newArgs[argIndex], newArgs[targetIndex]] = [newArgs[targetIndex], newArgs[argIndex]];
+
+        const newArgsText = newArgs.join(', ');
+
+        const originalArg = parsedArgs[argIndex];
+        const relativeCursorInArg = Math.max(0, Math.min(
+            originalArg.trimmed.length,
+            cursorOffsetInArgs - originalArg.trimmedStart
+        ));
+
+        let newCursorOffsetInArgs = 0;
+        for (let i = 0; i < targetIndex; i++) {
+            newCursorOffsetInArgs += newArgs[i].length + 2;
+        }
+        newCursorOffsetInArgs += Math.min(relativeCursorInArg, newArgs[targetIndex].length);
+
+        const startPos = document.positionAt(containerStart);
+        const endPos = document.positionAt(candidate.close);
+        const range = new vscode.Range(startPos, endPos);
+        const newCursorOffset = containerStart + newCursorOffsetInArgs;
+
+        await editor.edit((editBuilder) => {
+            editBuilder.replace(range, newArgsText);
+        });
+
+        const newPosition = document.positionAt(newCursorOffset);
+        editor.selection = new vscode.Selection(newPosition, newPosition);
         return;
     }
-
-    const cursorOffsetInArgs = cursorOffset - parens.openParen - 1;
-    const argIndex = findArgumentIndex(rawArgs, cursorOffsetInArgs);
-
-    let targetIndex: number;
-    if (direction === 'left') {
-        if (argIndex <= 0) {
-            return;
-        }
-        targetIndex = argIndex - 1;
-    } else {
-        if (argIndex >= args.length - 1) {
-            return;
-        }
-        targetIndex = argIndex + 1;
-    }
-
-    const newArgs = [...args];
-    [newArgs[argIndex], newArgs[targetIndex]] = [newArgs[targetIndex], newArgs[argIndex]];
-
-    const newArgsText = newArgs.filter(a => a).join(', ');
-
-    const startPos = document.positionAt(parens.openParen + 1);
-    const endPos = document.positionAt(parens.closeParen);
-    const range = new vscode.Range(startPos, endPos);
-
-    let newCursorOffsetInArgs = 0;
-    for (let i = 0; i < targetIndex; i++) {
-        newCursorOffsetInArgs += newArgs[i].length + 2;
-    }
-    const newCursorOffset = parens.openParen + 1 + newCursorOffsetInArgs;
-
-    await editor.edit((editBuilder) => {
-        editBuilder.replace(range, newArgsText);
-    });
-
-    const newPosition = document.positionAt(newCursorOffset);
-    editor.selection = new vscode.Selection(newPosition, newPosition);
 };

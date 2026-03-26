@@ -441,5 +441,51 @@ suite('Argument Operations Test Suite', () => {
         const text = doc.getText();
         assert.strictEqual(text, 'func(a, b, c)');
     });
+
+    test('moveArgument - prefers nearest enclosing braces before outer call arguments', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'rl.SetShaderValue(SHADER, RESOLUTIONLOC, []float32{bounds.Width * 50, bounds.Height * 50}, rl.ShaderUniformVec2)'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        const cursor = doc.getText().indexOf('Width') + 1;
+        editor.selection = new vscode.Selection(doc.positionAt(cursor), doc.positionAt(cursor));
+
+        await myExtension.moveArgument('right');
+
+        const text = doc.getText();
+        assert.strictEqual(text, 'rl.SetShaderValue(SHADER, RESOLUTIONLOC, []float32{bounds.Height * 50, bounds.Width * 50}, rl.ShaderUniformVec2)');
+    });
+
+    test('moveArgument - moves within nearest braces for complex expressions', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'rl.SetShaderValue(SHADER, COLORLOC, []float32{float32(shader.R) / 255, float32(shader.G) / 255, float32(shader.B) / 255}, rl.ShaderUniformVec3)'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        const cursor = doc.getText().indexOf('shader.B') + 2;
+        editor.selection = new vscode.Selection(doc.positionAt(cursor), doc.positionAt(cursor));
+
+        await myExtension.moveArgument('left');
+
+        const text = doc.getText();
+        assert.strictEqual(text, 'rl.SetShaderValue(SHADER, COLORLOC, []float32{float32(shader.R) / 255, float32(shader.B) / 255, float32(shader.G) / 255}, rl.ShaderUniformVec3)');
+    });
+
+    test('moveArgument - selected whole argument moves at outer call level', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'rl.SetShaderValue(SHADER, RESOLUTIONLOC, []float32{bounds.Width * 50, bounds.Height * 50}, rl.ShaderUniformVec2)'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        const text = doc.getText();
+        const selectionStart = text.indexOf('[]float32{');
+        const selectionEnd = text.indexOf('}, rl.ShaderUniformVec2') + 1;
+        editor.selection = new vscode.Selection(doc.positionAt(selectionStart), doc.positionAt(selectionEnd));
+
+        await myExtension.moveArgument('right');
+
+        assert.strictEqual(doc.getText(), 'rl.SetShaderValue(SHADER, RESOLUTIONLOC, rl.ShaderUniformVec2, []float32{bounds.Width * 50, bounds.Height * 50})');
+    });
 });
 
