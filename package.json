@@ -2,7 +2,7 @@
   "name": "chimera",
   "displayName": "Chimera",
   "description": "A compilation of focus-editor, sublime-text and other editors features",
-  "version": "1.8.2",
+  "version": "1.8.4",
   "publisher": "dsvdiniz",
   "engines": {
     "vscode": "^1.105.0"
@@ -87,6 +87,11 @@
       {
         "command": "chimera.alignCursors",
         "title": "Align Cursors",
+        "category": "Chimera"
+      },
+      {
+        "command": "chimera.alignBySymbol",
+        "title": "Align By Symbol",
         "category": "Chimera"
       },
       {

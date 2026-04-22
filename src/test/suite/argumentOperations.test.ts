@@ -487,5 +487,19 @@ suite('Argument Operations Test Suite', () => {
 
         assert.strictEqual(doc.getText(), 'rl.SetShaderValue(SHADER, RESOLUTIONLOC, rl.ShaderUniformVec2, []float32{bounds.Width * 50, bounds.Height * 50})');
     });
+
+    test('moveArgument - falls back to outer call when inner call has one argument', async () => {
+        const doc = await vscode.workspace.openTextDocument({
+            content: 'FilterAndRankMusicFiles(string(s.FilterSLE.Text), allItems)'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        const cursor = doc.getText().indexOf('FilterSLE') + 2;
+        editor.selection = new vscode.Selection(doc.positionAt(cursor), doc.positionAt(cursor));
+
+        await myExtension.moveArgument('right');
+
+        assert.strictEqual(doc.getText(), 'FilterAndRankMusicFiles(allItems, string(s.FilterSLE.Text))');
+    });
 });
 

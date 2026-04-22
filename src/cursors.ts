@@ -29,6 +29,86 @@ export const alignCursors = async () => {
     });
 };
 
+export const alignBySymbol = async (symbolArg?: string) => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        return;
+    }
+
+    const selections = editor.selections;
+    if (!selections || selections.length === 0) {
+        return;
+    }
+
+    const lineNumbers = new Set<number>();
+    for (const selection of selections) {
+        if (selection.isEmpty) {
+            if (selections.length > 1) {
+                lineNumbers.add(selection.active.line);
+            }
+            continue;
+        }
+
+        const startLine = Math.min(selection.start.line, selection.end.line);
+        const endLine = Math.max(selection.start.line, selection.end.line);
+        for (let line = startLine; line <= endLine; line++) {
+            lineNumbers.add(line);
+        }
+    }
+
+    if (lineNumbers.size === 0) {
+        return;
+    }
+
+    let symbol = symbolArg;
+    if (symbol === undefined) {
+        symbol = await vscode.window.showInputBox({
+            placeHolder: 'Symbol to align by (first occurrence on each line)'
+        });
+    }
+
+    if (!symbol) {
+        return;
+    }
+
+    const sortedLineNumbers = Array.from(lineNumbers).sort((a, b) => a - b);
+    let maxSymbolColumn = -1;
+    const lineData: Array<{ line: number; text: string; symbolIndex: number }> = [];
+
+    for (const lineNumber of sortedLineNumbers) {
+        const text = editor.document.lineAt(lineNumber).text;
+        const symbolIndex = text.indexOf(symbol);
+        if (symbolIndex === -1) {
+            continue;
+        }
+
+        lineData.push({ line: lineNumber, text, symbolIndex });
+        if (symbolIndex > maxSymbolColumn) {
+            maxSymbolColumn = symbolIndex;
+        }
+    }
+
+    if (maxSymbolColumn === -1) {
+        return;
+    }
+
+    await editor.edit((editBuilder) => {
+        for (const item of lineData) {
+            const spacesNeeded = maxSymbolColumn - item.symbolIndex;
+            if (spacesNeeded <= 0) {
+                continue;
+            }
+
+            const updatedLine =
+                item.text.slice(0, item.symbolIndex) +
+                ' '.repeat(spacesNeeded) +
+                item.text.slice(item.symbolIndex);
+
+            editBuilder.replace(editor.document.lineAt(item.line).range, updatedLine);
+        }
+    });
+};
+
 export const addNumbersToCursors = async (startNumberArg?: number) => {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {

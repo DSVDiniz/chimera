@@ -17,6 +17,9 @@
 - **Shuffle Lines** (`chimera.shuffleLines`): Randomly shuffle selected lines.
 - **Swap Case** (`chimera.swapCase`): Swap the case of selected text (uppercase to lowercase and vice versa).
 
+## Based on emacs
+- **Align By Symbol** (`chimera.alignBySymbol`): Align selected lines (or multi-cursor lines) by the first occurrence of an input symbol.
+
 ## Based on another extension that doesn't work/exist anymore
 - **Add Numbers to Cursors** (`chimera.addNumbersToCursors`): Insert sequential numbers at each cursor position.
 
