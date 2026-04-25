@@ -112,4 +112,63 @@ suite('Align By Symbol Test Suite', () => {
         assert.strictEqual(lines[1], 'no symbol here');
         assert.strictEqual(lines[2], 'long_name = 2');
     });
+
+    test('aligns mixed-indent Go function body by = (no-indent, 1-tab, 2-tab lines)', async () => {
+        const content = [
+            'func UpdateScreenResize(s *ScreenData, width, height float32) {',
+            '\ts.HasResized = s.PrevFrameScreen.X != width || s.PrevFrameScreen.Y != height',
+            '\tif s.HasResized {',
+            '\t\ts.PrevFrameScreen.X = width',
+            '\t\ts.PrevFrameScreen.Y = height',
+            '\t}',
+            '\ts.HasResized = s.PrevFrameScreen.X != width || s.PrevFrameScreen.Y != height',
+            '}',
+        ].join('\n');
+
+        const doc = await vscode.workspace.openTextDocument({ content });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selection = new vscode.Selection(0, 0, 6, doc.lineAt(6).text.length);
+
+        await myExtension.alignBySymbol('=');
+
+        const lines = doc.getText().split('\n');
+        assert.strictEqual(lines[0], 'func UpdateScreenResize(s *ScreenData, width, height float32) {');
+        assert.strictEqual(lines[1], '\ts.HasResized            = s.PrevFrameScreen.X != width || s.PrevFrameScreen.Y != height');
+        assert.strictEqual(lines[2], '\tif s.HasResized {');
+        assert.strictEqual(lines[3], '\t\ts.PrevFrameScreen.X = width');
+        assert.strictEqual(lines[4], '\t\ts.PrevFrameScreen.Y = height');
+        assert.strictEqual(lines[5], '\t}');
+        assert.strictEqual(lines[6], '\ts.HasResized            = s.PrevFrameScreen.X != width || s.PrevFrameScreen.Y != height');
+        assert.strictEqual(lines[7], '}');
+    });
+    test('aligns mixed-indent Go function body by = (no-indent, 4 spaces, 8 spaces lines)', async () => {
+        const content = [
+            'func UpdateScreenResize(s *ScreenData, width, height float32) {',
+            '    s.HasResized = s.PrevFrameScreen.X != width || s.PrevFrameScreen.Y != height',
+            '    if s.HasResized {',
+            '        s.PrevFrameScreen.X = width',
+            '        s.PrevFrameScreen.Y = height',
+            '    }',
+            '    s.HasResized = s.PrevFrameScreen.X != width || s.PrevFrameScreen.Y != height',
+            '}'
+        ].join('\n');
+
+        const doc = await vscode.workspace.openTextDocument({ content });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selection = new vscode.Selection(0, 0, 6, doc.lineAt(6).text.length);
+
+        await myExtension.alignBySymbol('=');
+
+        const lines = doc.getText().split('\n');
+        assert.strictEqual(lines[0], 'func UpdateScreenResize(s *ScreenData, width, height float32) {');
+        assert.strictEqual(lines[1], '    s.HasResized            = s.PrevFrameScreen.X != width || s.PrevFrameScreen.Y != height');
+        assert.strictEqual(lines[2], '    if s.HasResized {');
+        assert.strictEqual(lines[3], '        s.PrevFrameScreen.X = width');
+        assert.strictEqual(lines[4], '        s.PrevFrameScreen.Y = height');
+        assert.strictEqual(lines[5], '    }');
+        assert.strictEqual(lines[6], '    s.HasResized            = s.PrevFrameScreen.X != width || s.PrevFrameScreen.Y != height');
+        assert.strictEqual(lines[7], '}');
+    });
 });
