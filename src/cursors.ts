@@ -1,5 +1,22 @@
 import * as vscode from 'vscode';
 
+const getTabSize = (editor: vscode.TextEditor): number => {
+    const ts = editor.options.tabSize;
+    return typeof ts === 'number' ? ts : 4;
+};
+
+const visualColumn = (text: string, charIndex: number, tabSize: number): number => {
+    let col = 0;
+    for (let i = 0; i < charIndex; i++) {
+        if (text[i] === '\t') {
+            col = Math.floor(col / tabSize) * tabSize + tabSize;
+        } else {
+            col++;
+        }
+    }
+    return col;
+};
+
 export const alignCursors = async () => {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
@@ -11,17 +28,22 @@ export const alignCursors = async () => {
         return;
     }
 
-    let maxCol = 0;
+    const tabSize = getTabSize(editor);
+
+    let maxVisualCol = 0;
     for (const selection of selections) {
-        if (selection.start.character > maxCol) {
-            maxCol = selection.start.character;
+        const text = editor.document.lineAt(selection.start.line).text;
+        const vc = visualColumn(text, selection.start.character, tabSize);
+        if (vc > maxVisualCol) {
+            maxVisualCol = vc;
         }
     }
 
     await editor.edit((editBuilder) => {
         for (const selection of selections) {
-            const currentCol = selection.start.character;
-            const spacesNeeded = maxCol - currentCol;
+            const text = editor.document.lineAt(selection.start.line).text;
+            const currentVisualCol = visualColumn(text, selection.start.character, tabSize);
+            const spacesNeeded = maxVisualCol - currentVisualCol;
             if (spacesNeeded > 0) {
                 editBuilder.insert(selection.start, ' '.repeat(spacesNeeded));
             }
@@ -71,9 +93,11 @@ export const alignBySymbol = async (symbolArg?: string) => {
         return;
     }
 
+    const tabSize = getTabSize(editor);
+
     const sortedLineNumbers = Array.from(lineNumbers).sort((a, b) => a - b);
-    let maxSymbolColumn = -1;
-    const lineData: Array<{ line: number; text: string; symbolIndex: number }> = [];
+    let maxSymbolVisualCol = -1;
+    const lineData: Array<{ line: number; text: string; symbolIndex: number; symbolVisualCol: number }> = [];
 
     for (const lineNumber of sortedLineNumbers) {
         const text = editor.document.lineAt(lineNumber).text;
@@ -82,19 +106,20 @@ export const alignBySymbol = async (symbolArg?: string) => {
             continue;
         }
 
-        lineData.push({ line: lineNumber, text, symbolIndex });
-        if (symbolIndex > maxSymbolColumn) {
-            maxSymbolColumn = symbolIndex;
+        const symbolVisualCol = visualColumn(text, symbolIndex, tabSize);
+        lineData.push({ line: lineNumber, text, symbolIndex, symbolVisualCol });
+        if (symbolVisualCol > maxSymbolVisualCol) {
+            maxSymbolVisualCol = symbolVisualCol;
         }
     }
 
-    if (maxSymbolColumn === -1) {
+    if (maxSymbolVisualCol === -1) {
         return;
     }
 
     await editor.edit((editBuilder) => {
         for (const item of lineData) {
-            const spacesNeeded = maxSymbolColumn - item.symbolIndex;
+            const spacesNeeded = maxSymbolVisualCol - item.symbolVisualCol;
             if (spacesNeeded <= 0) {
                 continue;
             }

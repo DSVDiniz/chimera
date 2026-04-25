@@ -67,6 +67,36 @@ suite('Align By Symbol Test Suite', () => {
         assert.strictEqual(lines[1], 'longer_name: k: v');
     });
 
+    test('aligns by visual column when lines have different tab indentation', async () => {
+        // line 0: 1 tab indent, lines 2+3: 2 tab indent — tabs must be expanded before computing max column
+        const doc = await vscode.workspace.openTextDocument({
+            content: '\ts.HasResized = s.PrevFrameScreen.X != width\n\tif s.HasResized {\n\t\ts.PrevFrameScreen.X = width\n\t\ts.PrevFrameScreen.Y = height\n\t}'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selection = new vscode.Selection(0, 0, 4, doc.lineAt(4).text.length);
+
+        await myExtension.alignBySymbol('=');
+
+        const tabSize = 4;
+        const visualCol = (text: string, charIdx: number) => {
+            let col = 0;
+            for (let i = 0; i < charIdx; i++) {
+                col = text[i] === '\t' ? Math.floor(col / tabSize) * tabSize + tabSize : col + 1;
+            }
+            return col;
+        };
+
+        const lines = doc.getText().split('\n');
+        const vcLine0 = visualCol(lines[0], lines[0].indexOf('='));
+        const vcLine2 = visualCol(lines[2], lines[2].indexOf('='));
+        const vcLine3 = visualCol(lines[3], lines[3].indexOf('='));
+        assert.strictEqual(vcLine0, vcLine2, 'visual columns of = should match between 1-tab and 2-tab lines');
+        assert.strictEqual(vcLine2, vcLine3, 'lines with same indentation stay equal');
+        assert.strictEqual(lines[1], '\tif s.HasResized {', 'non-matching line unchanged');
+        assert.strictEqual(lines[4], '\t}', 'non-matching line unchanged');
+    });
+
     test('ignores lines without symbol while aligning others', async () => {
         const doc = await vscode.workspace.openTextDocument({
             content: 'short = 1\nno symbol here\nlong_name = 2'

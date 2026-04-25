@@ -44,5 +44,26 @@ suite('Align Cursors Test Suite', () => {
         assert.strictEqual(lines[1], 'const font_size       = 18');
         assert.strictEqual(lines[2], 'const font_spacing    = 2');
     });
+
+    test('alignCursors aligns by visual column when cursors are on tab-indented lines', async () => {
+        // line 0: `\ta: 1`, cursor after `\ta` at char 2 → visual col 5 (tab=4)
+        // line 1: `\t\ta: 2`, cursor after `\t\ta` at char 3 → visual col 9
+        // line 0 needs 4 spaces inserted so both cursors land at visual col 9
+        const doc = await vscode.workspace.openTextDocument({
+            content: '\ta: 1\n\t\ta: 2'
+        });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        editor.selections = [
+            new vscode.Selection(0, 2, 0, 2),
+            new vscode.Selection(1, 3, 1, 3)
+        ];
+
+        await myExtension.alignCursors();
+
+        const lines = doc.getText().split('\n');
+        assert.strictEqual(lines[0], '\ta    : 1');
+        assert.strictEqual(lines[1], '\t\ta: 2');
+    });
 });
 
