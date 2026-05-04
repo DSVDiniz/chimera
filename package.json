@@ -2,7 +2,7 @@
   "name": "chimera",
   "displayName": "Chimera",
   "description": "A compilation of focus-editor, sublime-text and other editors features",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "publisher": "dsvdiniz",
   "engines": {
     "vscode": "^1.105.0"
@@ -132,6 +132,11 @@
       {
         "command": "chimera.sortLinesCaseSensitive",
         "title": "Sort Lines (Case Sensitive)",
+        "category": "Chimera"
+      },
+      {
+        "command": "chimera.splitBySymbol",
+        "title": "Split By Symbol",
         "category": "Chimera"
       },
       {

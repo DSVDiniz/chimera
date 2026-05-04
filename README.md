@@ -24,6 +24,7 @@
 - **Add Numbers to Cursors** (`chimera.addNumbersToCursors`): Insert sequential numbers at each cursor position.
 
 ## Miscellaneous
+- **Split By Symbol** (`chimera.splitBySymbol`): Replaces every occurrence of an input symbol with a newline. Works on current line, multi-cursor lines, or selected text (selections take priority).
 - **Split Arguments** (`chimera.splitArguments`): Split comma-separated values onto separate lines (smart handling of quotes/parens).
 - **Unsplit Arguments** (`chimera.unsplitArguments`): Join multi-line comma-separated values into a single compact line.
 - **Move Argument Left** (`chimera.moveArgumentLeft`) (`shift+alt+left`): Swap the argument at cursor position with the one to its left.

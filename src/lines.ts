@@ -101,3 +101,50 @@ export const sortLines = async (caseSensitive: boolean) => {
         }
     });
 };
+
+const replaceAllOccurrences = (text: string, symbol: string): string => text.split(symbol).join('\n');
+
+export const splitBySymbol = async (symbolArg?: string) => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        return;
+    }
+
+    let symbol = symbolArg;
+    if (symbol === undefined) {
+        symbol = await vscode.window.showInputBox({
+            placeHolder: 'Symbol to split by'
+        });
+    }
+
+    if (!symbol) {
+        return;
+    }
+
+    const document = editor.document;
+    const nonEmptySelections = editor.selections.filter(selection => !selection.isEmpty);
+
+    await editor.edit((editBuilder) => {
+        if (nonEmptySelections.length > 0) {
+            for (const selection of nonEmptySelections) {
+                const text = document.getText(selection);
+                editBuilder.replace(selection, replaceAllOccurrences(text, symbol));
+            }
+            return;
+        }
+
+        const lineNumbers = new Set<number>();
+        if (editor.selections.length > 1) {
+            for (const selection of editor.selections) {
+                lineNumbers.add(selection.active.line);
+            }
+        } else {
+            lineNumbers.add(editor.selection.active.line);
+        }
+
+        for (const lineNumber of Array.from(lineNumbers)) {
+            const line = document.lineAt(lineNumber);
+            editBuilder.replace(line.range, replaceAllOccurrences(line.text, symbol));
+        }
+    });
+};

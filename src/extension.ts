@@ -5,7 +5,7 @@ export { activateWordSeparators, switchWordSeparators } from './wordSeparators';
 export { nextError, nextErrorInFile } from './diagnostics';
 export { alignCursors, alignBySymbol, addNumbersToCursors } from './cursors';
 export { cycleCasing, originalSelectionsText, swapCase } from './casing';
-export { uniqueLines, reverseLines, shuffleLines, sortLines } from './lines';
+export { uniqueLines, reverseLines, shuffleLines, sortLines, splitBySymbol } from './lines';
 export { splitArguments, unsplitArguments, moveArgument } from './arguments';
 export { scrollFast } from './navigation';
 export { quoteWords, cycleQuotes } from './quotes';
@@ -16,7 +16,7 @@ import { activateWordSeparators, switchWordSeparators } from './wordSeparators';
 import { nextError, nextErrorInFile } from './diagnostics';
 import { alignCursors, alignBySymbol, addNumbersToCursors } from './cursors';
 import { cycleCasing, swapCase } from './casing';
-import { uniqueLines, reverseLines, shuffleLines, sortLines } from './lines';
+import { uniqueLines, reverseLines, shuffleLines, sortLines, splitBySymbol } from './lines';
 import { splitArguments, unsplitArguments, moveArgument } from './arguments';
 import { scrollFast } from './navigation';
 import { quoteWords, cycleQuotes } from './quotes';
@@ -39,6 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('chimera.shuffleLines', () => shuffleLines()),
     vscode.commands.registerCommand('chimera.sortLines', () => sortLines(false)),
     vscode.commands.registerCommand('chimera.sortLinesCaseSensitive', () => sortLines(true)),
+    vscode.commands.registerCommand('chimera.splitBySymbol', () => splitBySymbol()),
     vscode.commands.registerCommand('chimera.splitArguments', () => splitArguments()),
     vscode.commands.registerCommand('chimera.unsplitArguments', () => unsplitArguments()),
     vscode.commands.registerCommand('chimera.scrollUpFast', () => scrollFast('up')),
