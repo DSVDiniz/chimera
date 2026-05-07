@@ -321,7 +321,9 @@ export const moveArgument = async (direction: 'left' | 'right') => {
     const selectionStartOffset = document.offsetAt(selection.start);
     const selectionEndOffset = document.offsetAt(selection.end);
 
-    const candidates = findEnclosingDelimiterSpans(fullText, selectionStartOffset, selectionEndOffset);
+    const currentLine = cursorPosition.line;
+    const candidates = findEnclosingDelimiterSpans(fullText, selectionStartOffset, selectionEndOffset)
+        .filter(c => document.positionAt(c.open).line === currentLine && document.positionAt(c.close).line === currentLine);
     if (candidates.length === 0) {
         return;
     }
@@ -344,12 +346,12 @@ export const moveArgument = async (direction: 'left' | 'right') => {
         let targetIndex: number;
         if (direction === 'left') {
             if (argIndex <= 0) {
-                continue;
+                return;
             }
             targetIndex = argIndex - 1;
         } else {
             if (argIndex >= parsedArgs.length - 1) {
-                continue;
+                return;
             }
             targetIndex = argIndex + 1;
         }

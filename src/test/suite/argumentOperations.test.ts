@@ -217,7 +217,7 @@ suite('Argument Operations Test Suite', () => {
         assert.strictEqual(text, 'func(b, "hello, world", c)');
     });
 
-    test('moveArgument - multi-line works', async () => {
+    test('moveArgument - does nothing for multi-line argument list', async () => {
         const doc = await vscode.workspace.openTextDocument({
             content: 'func(\n    100,\n    150,\n    50\n)'
         });
@@ -228,7 +228,7 @@ suite('Argument Operations Test Suite', () => {
         await myExtension.moveArgument('right');
 
         const text = doc.getText();
-        assert.strictEqual(text, 'func(150, 100, 50)');
+        assert.strictEqual(text, 'func(\n    100,\n    150,\n    50\n)');
     });
 
     test('moveArgument - single-line with trailing comma', async () => {
@@ -500,6 +500,31 @@ suite('Argument Operations Test Suite', () => {
         await myExtension.moveArgument('right');
 
         assert.strictEqual(doc.getText(), 'FilterAndRankMusicFiles(allItems, string(s.FilterSLE.Text))');
+    });
+
+    test('moveArgument - does not swap outer call when cursor is in first callback argument', async () => {
+        const input = `useEffect(() => {
+    if (!menuOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [menuOpen]);`;
+
+        const doc = await vscode.workspace.openTextDocument({ content: input });
+        const editor = await vscode.window.showTextDocument(doc);
+
+        const cursor = input.lastIndexOf('handleClick);') + 2;
+        editor.selection = new vscode.Selection(doc.positionAt(cursor), doc.positionAt(cursor));
+
+        await myExtension.moveArgument('left');
+
+        const result = doc.getText();
+        assert.ok(result.includes('useEffect(() => {'));
+        assert.ok(result.includes('}, [menuOpen]);'));
     });
 });
 
