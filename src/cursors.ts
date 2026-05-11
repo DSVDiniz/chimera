@@ -172,3 +172,62 @@ export const addNumbersToCursors = async (startNumberArg?: number) => {
         }
     });
 };
+
+export const addNumbersToCursorsPro = async (startNumberArg?: number, increaseByArg?: number) => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        return;
+    }
+
+    const selections = editor.selections;
+    if (!selections || selections.length < 2) {
+        return;
+    }
+
+    let startNumber = 0;
+    if (startNumberArg !== undefined) {
+        startNumber = startNumberArg;
+    } else {
+        const startNumberStr = await vscode.window.showInputBox({
+            placeHolder: 'Starting number (default: 0)',
+            validateInput: (text) => {
+                if (!text) {
+                    return null;
+                }
+                return isNaN(Number(text)) ? 'Please enter a valid number' : null;
+            }
+        });
+
+        if (startNumberStr === undefined) {
+            return;
+        }
+        startNumber = startNumberStr ? Number(startNumberStr) : 0;
+    }
+
+    let increaseBy = 1;
+    if (increaseByArg !== undefined) {
+        increaseBy = increaseByArg;
+    } else {
+        const increaseByStr = await vscode.window.showInputBox({
+            placeHolder: 'Increase by (default: 1)',
+            validateInput: (text) => {
+                if (!text) {
+                    return null;
+                }
+                return isNaN(Number(text)) ? 'Please enter a valid number' : null;
+            }
+        });
+
+        if (increaseByStr === undefined) {
+            return;
+        }
+        increaseBy = increaseByStr ? Number(increaseByStr) : 1;
+    }
+
+    await editor.edit((editBuilder) => {
+        for (let i = 0; i < selections.length; i++) {
+            const selection = selections[i];
+            editBuilder.replace(selection, '' + (startNumber + (i * increaseBy)));
+        }
+    });
+};

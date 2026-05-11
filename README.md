@@ -21,7 +21,8 @@
 - **Align By Symbol** (`chimera.alignBySymbol`): Align selected lines (or multi-cursor lines) by the first occurrence of an input symbol.
 
 ## Based on another extension that doesn't work/exist anymore
-- **Add Numbers to Cursors** (`chimera.addNumbersToCursors`): Insert sequential numbers at each cursor position.
+- **Add Numbers to Cursors** (`chimera.addNumbersToCursors`): Insert sequential numbers at each cursor position (always starts on 0 and increases by 1).
+- **Add Numbers to Cursors Pro** (`chimera.addNumbersToCursorsPro`): Insert sequential numbers at each cursor position (custom start and step).
 
 ## Miscellaneous
 - **Split By Symbol** (`chimera.splitBySymbol`): Replaces every occurrence of an input symbol with a newline. Works on current line, multi-cursor lines, or selected text (selections take priority).

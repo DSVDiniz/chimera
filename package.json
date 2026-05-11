@@ -2,7 +2,7 @@
   "name": "chimera",
   "displayName": "Chimera",
   "description": "A compilation of focus-editor, sublime-text and other editors features",
-  "version": "1.10.1",
+  "version": "1.11.0",
   "publisher": "dsvdiniz",
   "engines": {
     "vscode": "^1.105.0"
@@ -96,7 +96,12 @@
       },
       {
         "command": "chimera.addNumbersToCursors",
-        "title": "Adds numbers (counting up) to every cursor",
+        "title": "Adds numbers (from 0, incrementing by 1) to every cursor",
+        "category": "Chimera"
+      },
+      {
+        "command": "chimera.addNumbersToCursorsPro",
+        "title": "Adds numbers (custom start and step) to every cursor",
         "category": "Chimera"
       },
       {
