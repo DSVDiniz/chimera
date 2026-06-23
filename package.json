@@ -5,7 +5,7 @@
   "version": "1.11.0",
   "publisher": "dsvdiniz",
   "engines": {
-    "vscode": "^1.105.0"
+    "vscode": "^1.92.2"
   },
   "categories": [
     "Other"
@@ -275,10 +275,17 @@
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "test:v1.15": "vscode-test --label v1.15",
+    "test:v1.20": "vscode-test --label v1.20",
+    "test:v1.30": "vscode-test --label v1.30",
+    "test:v1.50": "vscode-test --label v1.50",
+    "test:v1.70": "vscode-test --label v1.70",
+    "test:v1.92": "vscode-test --label v1.92",
+    "test:latest": "vscode-test --label latest"
   },
   "devDependencies": {
-    "@types/vscode": "^1.105.0",
+    "@types/vscode": "^1.92.2",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
     "@typescript-eslint/eslint-plugin": "^8.39.0",
